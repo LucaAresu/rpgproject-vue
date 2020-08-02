@@ -8,7 +8,7 @@
 				<img :src="require('@/assets/characters/'+index+'.png')">
 			</div>
 			<div class="arrow">
-				<button @click="$emit('changeChar',1)"> Successivo </button>
+				<button @click="$emit('changeChar',1)"> Successivo</button>
 			</div>
 		</div>
 	</div>
