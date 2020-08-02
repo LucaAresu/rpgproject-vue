@@ -5,7 +5,7 @@
 				<button @click="$emit('changeChar',-1)">Precedente</button>
 			</div>
 			<div>
-				<img :src="require('@/assets/characters/'+Math.abs(index%total)+'.png')">
+				<img :src="require('@/assets/characters/'+index+'.png')">
 			</div>
 			<div class="arrow">
 				<button @click="$emit('changeChar',1)"> Successivo </button>
@@ -14,14 +14,8 @@
 	</div>
 </template>
 <script>
-	import constants from '../../constants';
 	export default {
 		props : ['index'],
-		data() {
-			return {
-				total: constants.totalCharacters,
-			};
-		},
 	};
 </script>
 
