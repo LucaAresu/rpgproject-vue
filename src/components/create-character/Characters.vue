@@ -28,7 +28,7 @@
 .arrow {
 	display: flex;
 	justify-content: center;
-	align-items: center;fas
+	align-items: center;
 }
 img {
 	height: 300px;
