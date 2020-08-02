@@ -1,32 +1,49 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <Header />
+    <transition name="slide" mode="out-in">
+      <router-view/>
+    </transition>
   </div>
 </template>
+<script>
+import Header from './components/Header'
 
+export default {
+  components: {
+    Header
+  }
+}
+</script>
 <style>
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  overflow: hidden;
 }
-
-#nav {
-  padding: 30px;
+.slide-enter-active {
+  animation: slide-in 100ms ease-out forwards 
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+@keyframes slide-in {
+  from {
+      transform: translateX(400px);
+  }
+  to {
+      transform: translateX(0);
+  }
 }
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.slide-leave-active {
+  animation: slide-out 100ms ease-out forwards
+}
+@keyframes slide-out {
+  from {
+      transform: translateX(0);
+  }
+  to{
+      transform: translateX(400px);
+  }
 }
 </style>

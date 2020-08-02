@@ -10,3 +10,8 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
+
+Vue.prototype.$constants = {
+  appName : 'AppName',
+  totalCharacters : 6,
+}
