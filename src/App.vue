@@ -2,7 +2,7 @@
   <div id="app">
     <Header />
     <transition name="slide" mode="out-in">
-      <router-view/>
+      <router-view />
     </transition>
   </div>
 </template>
@@ -12,6 +12,15 @@ import Header from './components/Header'
 export default {
   components: {
     Header
+  },
+  created () {
+    const ref = localStorage.getItem('refresh_token')
+    console.log(ref)
+    console.log(this.$store.getters.isLoading)
+    if (ref) {
+      console.log('yep')
+      this.$store.dispatch('refreshLogin', ref)
+    }
   }
 }
 </script>
@@ -25,7 +34,7 @@ export default {
   overflow: hidden;
 }
 .slide-enter-active {
-  animation: slide-in 100ms ease-out forwards 
+  animation: slide-in 100ms ease-out forwards;
 }
 @keyframes slide-in {
   from {

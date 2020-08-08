@@ -2,7 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import axios from 'axios'
 
+axios.defaults.baseURL = 'https://vuerpgproject.firebaseio.com/'
 Vue.config.productionTip = false
 
 new Vue({
@@ -12,6 +14,6 @@ new Vue({
 }).$mount('#app')
 
 Vue.prototype.$constants = {
-  appName : 'AppName',
-  totalCharacters : 6,
+  appName: 'AppName',
+  totalCharacters: 6
 }

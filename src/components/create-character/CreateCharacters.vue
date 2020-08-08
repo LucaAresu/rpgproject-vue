@@ -9,6 +9,9 @@
 import constants from '../../constants'
 import Characters from './Characters'
 import Name from './ChooseName'
+// import axios from 'axios'
+// import { refresh } from '../../private/axioslogin'
+
 export default {
   data () {
     return {
@@ -28,6 +31,15 @@ export default {
       })
     }
   }
+  /* created () {
+    const uid = this.$store.getters.getUserId
+    const idt = this.$store.getters.getToken
+    axios.post(uid + '.json?auth=' + idt, { boh: 'sfsafasi' })
+    refresh.post('', {
+      grant_type: 'refresh_token',
+      refresh_token: this.$store.getters.getRefreshToken
+    })
+  } */
 }
 </script>
 <style scoped>
