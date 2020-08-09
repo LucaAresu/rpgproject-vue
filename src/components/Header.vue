@@ -43,4 +43,7 @@ li:hover {
     cursor: pointer;
     color: red;
 }
+#nav {
+  margin-bottom: 1rem;
+}
 </style>

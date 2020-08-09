@@ -24,11 +24,13 @@ export default {
   data () {
     return {
       email: '',
-      password: ''
+      password: '',
+      timeout: null
     }
   },
   methods: {
     register () {
+      this.$store.dispatch('clearLoginErrors')
       this.$store.dispatch('register', {
         email: this.email,
         password: this.password
@@ -45,7 +47,11 @@ export default {
   },
   watch: {
     error () {
-      setTimeout(() => this.$store.dispatch('clearLoginErrors'), 5000)
+      if (this.timeout) {
+        clearTimeout(this.timeout)
+        this.timeout = null
+      }
+      this.timeout = setTimeout(() => this.$store.dispatch('clearLoginErrors'), 3000)
     }
   },
   created () {

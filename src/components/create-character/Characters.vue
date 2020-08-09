@@ -2,7 +2,7 @@
   <div>
     <div class="char">
       <div class="arrow">
-        <button @click="$emit('changeChar',-1)">Precedente</button>
+        <button @click="$emit('change-char',-1)">Precedente</button>
       </div>
       <div class="image">
         <transition name="fade" mode="out-in">
@@ -10,7 +10,7 @@
         </transition>
       </div>
       <div class="arrow">
-        <button @click="$emit('changeChar',1)">Successivo</button>
+        <button @click="$emit('change-char',1)">Successivo</button>
       </div>
     </div>
   </div>

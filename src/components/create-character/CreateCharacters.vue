@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Crea il tuo personaggio </h1>
-      <characters :index="index" @changeChar="index = ((total + index + $event)%total)" />
+      <characters :index="index" @change-char="index = ((total + index + $event)%total)" />
     <name @complete="createCharacter($event)" />
   </div>
 </template>
@@ -16,7 +16,7 @@ export default {
   data () {
     return {
       index: 0,
-      total: constants.totalCharacters
+      total: constants.character.totalCharacters
     }
   },
   components: {
@@ -29,6 +29,7 @@ export default {
         name,
         avatar: this.index
       })
+      this.$store.dispatch('createMap')
     }
   }
   /* created () {

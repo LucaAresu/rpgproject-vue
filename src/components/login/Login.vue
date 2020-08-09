@@ -24,7 +24,8 @@ export default {
   data () {
     return {
       email: '',
-      password: ''
+      password: '',
+      timeout: null
     }
   },
   computed: {
@@ -34,11 +35,16 @@ export default {
   },
   watch: {
     error () {
-      setTimeout(() => this.$store.dispatch('clearLoginErrors'), 5000)
+      if (this.timeout) {
+        clearTimeout(this.timeout)
+        this.timeout = null
+      }
+      this.timeout = setTimeout(() => this.$store.dispatch('clearLoginErrors'), 3000)
     }
   },
   methods: {
     login () {
+      this.$store.dispatch('clearLoginErrors')
       this.$store.dispatch('login', {
         email: this.email,
         password: this.password
