@@ -1,8 +1,10 @@
 <template>
   <div>
     <h2>Inserisci il nome</h2>
-    <input v-model="name">
-    <button :disabled="!name" @click="$emit('complete',name)">Invia </button>
+    <div class="charname">
+      <input v-model="name">
+      <button :disabled="!name" @click="$emit('complete',name)">Invia </button>
+    </div>
   </div>
 </template>
 
@@ -17,18 +19,24 @@ export default {
 </script>
 
 <style scoped>
+input {
+  padding: 0.5rem;
+  width: 100%;
+}
+button {
+  padding: 0.5rem;
+}
+h2 {
+  display: block;
+  text-align: center;
+}
+.charname {
+  display: flex;
+  justify-content: center;
+}
+@media (min-width: 800px) {
   input {
-    padding: 0.5rem;
+    width: 20%;
   }
-  button {
-    padding: 0.5rem;
-  }
-  div {
-    display: flex;
-    justify-content: center;
-  }
-  h2 {
-    display: block;
-    text-align: center;
-  }
+}
 </style>

@@ -15,10 +15,8 @@ export default {
   },
   created () {
     const ref = localStorage.getItem('refresh_token')
-    console.log(ref)
-    console.log(this.$store.getters.isLoading)
     if (ref) {
-      console.log('yep')
+      this.$store.dispatch('startLoading')
       this.$store.dispatch('refreshLogin', ref)
     }
   }

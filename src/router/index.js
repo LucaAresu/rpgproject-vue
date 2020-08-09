@@ -5,19 +5,31 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
+const requiredLogin = next => {
+  if (store.getters.getLogged) {
+    next()
+  } else {
+    next({ name: 'auth' })
+  }
+}
+const requiredUnlogged = next => {
+  if (!store.getters.getLogged) {
+    next()
+  } else {
+    next({ name: 'Home' })
+  }
+}
+
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home,
     beforeEnter (to, from, next) {
-      if (store.getters.getLogged) {
-        next()
-      } else {
-        next({ name: 'auth' })
-      }
+      requiredLogin(next)
     }
   },
+
   {
     path: '/about',
     name: 'About',
@@ -26,6 +38,7 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
+
   {
     path: '/auth',
     component: () => import('../views/Login.vue'),
@@ -33,20 +46,37 @@ const routes = [
       {
         path: '/',
         name: 'auth',
-        component: () => import('../components/login/Home.vue')
+        component: () => import('../components/login/Home.vue'),
+        beforeEnter (to, from, next) {
+          requiredUnlogged(next)
+        }
       },
       {
         path: 'login',
         name: 'Login',
-        component: () => import('../components/login/Login.vue')
+        component: () => import('../components/login/Login.vue'),
+        beforeEnter (to, from, next) {
+          requiredUnlogged(next)
+        }
       },
       {
         path: 'register',
         name: 'Register',
-        component: () => import('../components/login/Register.vue')
+        component: () => import('../components/login/Register.vue'),
+        beforeEnter (to, from, next) {
+          requiredUnlogged(next)
+        }
       }
     ]
+  },
 
+  {
+    path: '/options',
+    name: 'Options',
+    component: () => import('../views/Options.vue'),
+    beforeEnter (to, from, next) {
+      requiredLogin(next)
+    }
   }
 ]
 const router = new VueRouter({

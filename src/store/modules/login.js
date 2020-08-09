@@ -7,7 +7,6 @@ const state = {
   token: null,
   userId: null,
   refreshToken: null,
-  expiresIn: null,
   error: null
 }
 
@@ -27,19 +26,31 @@ const mutations = {
     state.userId = data.id
     state.error = null
     state.refreshToken = data.refreshToken
-    state.expiresIn = data.expiresIn
     localStorage.setItem('refresh_token', data.refreshToken)
-    router.push({ name: 'Home' })
+    const currentRoute = router.currentRoute.name
+    if (currentRoute === 'auth' || currentRoute === 'Login' || currentRoute === 'Register') {
+      router.push({ name: 'Home' })
+    }
   },
   'LOGIN_ERROR' (state, error) {
     state.error = error
   },
   'CLEAR_ERROR' (state) {
     state.error = null
+  },
+  'LOGOUT' (state) {
+    state.logged = false
+    state.token = null
+    state.userId = null
+    state.error = null
+    state.refreshToken = null
+    localStorage.removeItem('refresh_token')
+    router.push({ name: 'auth' })
   }
 }
 
 const actions = {
+
   register ({ commit, dispatch }, data) {
     dispatch('startLoading')
     axios.registration.post('', {
@@ -58,6 +69,7 @@ const actions = {
           refreshToken,
           expiresIn
         })
+        setTimeout(() => dispatch('refreshLogin', refreshToken), (expiresIn - 1) * 1000)
         dispatch('endLoading')
       } else {
         commit('LOGIN_ERROR', constants.errors.RISPOSTA_INVALIDA)
@@ -73,6 +85,7 @@ const actions = {
       dispatch('endLoading')
     })
   },
+
   login ({ commit, dispatch }, data) {
     dispatch('startLoading')
     axios.login.post('', {
@@ -91,6 +104,7 @@ const actions = {
           refreshToken,
           expiresIn
         })
+        setTimeout(() => dispatch('refreshLogin', refreshToken), (expiresIn - 1) * 1000)
         dispatch('endLoading')
       } else {
         commit('LOGIN_ERROR', constants.errors.RISPOSTA_INVALIDA)
@@ -106,8 +120,8 @@ const actions = {
       dispatch('endLoading')
     })
   },
+
   refreshLogin ({ commit, dispatch }, refreshToken) {
-    dispatch('startLoading')
     axios.refresh.post('', {
       grant_type: 'refresh_token',
       refresh_token: refreshToken
@@ -123,6 +137,7 @@ const actions = {
           refreshToken,
           expiresIn
         })
+        setTimeout(() => dispatch('refreshLogin', refreshToken), (expiresIn - 1) * 1000)
       }
       dispatch('endLoading')
     }).catch(() => {
@@ -131,6 +146,10 @@ const actions = {
   },
   clearLoginErrors ({ commit }) {
     commit('CLEAR_ERROR')
+  },
+
+  logout ({ commit }) {
+    commit('LOGOUT')
   }
 }
 
