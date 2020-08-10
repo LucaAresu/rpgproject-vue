@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="char">
-      <div class="arrow">
+      <div class="arrow prev">
         <button @click="$emit('change-char',-1)">Precedente</button>
       </div>
       <div class="image">
@@ -9,7 +9,7 @@
           <img :src="require('@/assets/characters/'+index+'.png')" :key="index"/>
         </transition>
       </div>
-      <div class="arrow">
+      <div class="arrow next">
         <button @click="$emit('change-char',1)">Successivo</button>
       </div>
     </div>
@@ -26,25 +26,29 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  position: relative;
 }
 .arrow {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: absolute;
+  bottom: -2rem;
+}
+.prev {
+  left: 0;
+}
+.next {
+  right: 0;
+}
+@media(min-width: 800px) {
+  .arrow{
+    position: static;
+  }
 }
 img {
   height: 300px;
   width: 300px;
-}
-.arrow button {
-  padding: 1rem;
-  background-color: #ccc;
-  border: none;
-  box-shadow: 1px 1px 2px black;
-  height: auto;
-}
-button:hover {
-  box-shadow: inset 1px 1px 2px black;
 }
 
 .fade-enter-active {

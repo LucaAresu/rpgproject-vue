@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <h2>Inserisci il nome</h2>
-    <div class="charname">
-      <input v-model="name">
+  <div class="choosename">
+      <div>
+        <label for="name">Inserisci il nome </label>
+        <input v-model="name">
+      </div>
       <button :disabled="!name" @click="$emit('complete',name)">Invia </button>
-    </div>
   </div>
 </template>
 
@@ -20,22 +20,30 @@ export default {
 
 <style scoped>
 input {
+  border: 1px solid black;
   padding: 0.5rem;
   width: 100%;
 }
-button {
-  padding: 0.5rem;
-}
+
 h2 {
   display: block;
   text-align: center;
 }
-.charname {
-  display: flex;
-  justify-content: center;
+.choosename {
+  margin-top: 2rem;
 }
-@media (min-width: 800px) {
-  input {
+
+button {
+  width: 100%;
+}
+@media (min-width: 900px) {
+  .choosename {
+    width: 40%;
+    margin: auto;
+  }
+}
+@media (min-width: 1400px) {
+  .choosename {
     width: 20%;
   }
 }

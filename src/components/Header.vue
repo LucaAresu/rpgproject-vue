@@ -2,7 +2,7 @@
   <div id="nav">
     <ul>
       <router-link :to="{name: 'Home' }" v-if="logged" tag="li" active-class="active" exact key="home"><a>Home</a></router-link>
-      <router-link :to="{name: 'About'}" v-if="logged" tag="li" active-class="active" key="about"><a>About</a></router-link>
+      <router-link :to="{name: 'Stats'}" v-if="characterCreated" tag="li" active-class="active" key="about"><a :style="{color}">Stats</a></router-link>
       <router-link :to="{name: 'Login' }" v-if="! logged" tag="li" active-class="active" key="login"><a>Login</a></router-link>
       <router-link :to="{name: 'Register'}" v-if="! logged" tag="li" active-class="active" key="register"><a>Register</a></router-link>
       <router-link :to="{name: 'Options'}" v-if="logged" tag="li" active-class="active" key="options"><a>Options</a></router-link>
@@ -14,6 +14,12 @@ export default {
   computed: {
     logged () {
       return this.$store.getters.getLogged
+    },
+    characterCreated () {
+      return this.$store.getters.isCharacterCreated
+    },
+    color () {
+      return this.$store.getters.getStatsToAllocate ? 'red' : 'black'
     }
   }
 }

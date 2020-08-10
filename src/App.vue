@@ -23,11 +23,11 @@ export default {
 }
 </script>
 <style>
-* {
+ @import url('https://fonts.googleapis.com/css2?family=Recursive:wght@500&display=swap');* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-}
+  font-family: 'Recursive', sans-serif;}
 #app {
   overflow: hidden;
 }
@@ -52,5 +52,22 @@ export default {
   to{
       transform: translateX(400px);
   }
+}
+button {
+  border: 1px solid black;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 1px 2px 1px #ccc;
+}
+button:hover:not([disabled]) {
+  cursor: pointer;
+  box-shadow: inset 1px 2px 1px #ccc;
+}
+button:disabled {
+  cursor: not-allowed;
+  border: 1px solid #ccc;
+  box-shadow: inset 1px 2px 1px #ccc;
+  color: #ccc;
+
 }
 </style>
