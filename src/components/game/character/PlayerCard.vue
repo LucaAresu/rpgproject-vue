@@ -10,26 +10,26 @@
         </div>
         <div class="barfield">
           <div class="bartext">
-           EXP: 1000/1000
+           EXP: {{ currentExp }}/{{ maxExp }}
           </div>
           <div class="exp bar">
-            <div class="current" :style="{width: '20%'}"></div>
+            <div class="current" :style="{width: getWidth(currentExp, maxExp)}"></div>
           </div>
         </div>
         <div class="barfield">
           <div class="bartext">
-           HP: {{ $store.getters.getCurrentHp }}/{{$store.getters.getMaxHp}}
+           HP: {{ currentHp }}/{{ maxHp }}
           </div>
           <div class="hp bar">
-            <div class="current" :style="{width: hpWidth}"></div>
+            <div class="current" :style="{width: getWidth(currentHp, maxHp)}"></div>
           </div>
         </div>
         <div class="barfield">
           <div class="bartext">
-           Mana: {{ $store.getters.getCurrentMana }}/{{$store.getters.getMaxMana}}
+           Mana: {{ currentMana }}/{{ maxMana }}
           </div>
           <div class="mana bar">
-            <div class="current" :style="{width: manaWidth}"></div>
+            <div class="current" :style="{width: getWidth(currentMana, maxMana)}"></div>
           </div>
         </div>
       </div>
@@ -41,17 +41,18 @@
 </template>
 <script>
 export default {
-  computed: {
-    hpWidth () {
-      const currentHp = this.$store.getters.getCurrentHp
-      const maxHp = this.$store.getters.getMaxHp
-      return ((currentHp * 100) / maxHp).toFixed(0) + '%'
-    },
-    manaWidth () {
-      const currentMana = this.$store.getters.getCurrentMana
-      const maxMana = this.$store.getters.getMaxMana
-      return ((currentMana * 100) / maxMana).toFixed(0) + '%'
+  methods: {
+    getWidth (current, max) {
+      return ((current * 100) / max).toFixed(0) + '%'
     }
+  },
+  computed: {
+    currentHp () { return this.$store.getters.getCurrentHp },
+    maxHp () { return this.$store.getters.getMaxHp },
+    currentMana () { return this.$store.getters.getCurrentMana },
+    maxMana () { return this.$store.getters.getMaxMana },
+    currentExp () { return this.$store.getters.getExpThisLevel },
+    maxExp () { return this.$store.getters.getExpRequired }
   }
 }
 </script>

@@ -4,6 +4,7 @@ import login from './modules/login'
 import game from './modules/game'
 import ui from './modules/ui'
 import character from './modules/character'
+import log from './modules/log'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
     ui,
     login,
     character,
-    game
+    game,
+    log
   }
 })

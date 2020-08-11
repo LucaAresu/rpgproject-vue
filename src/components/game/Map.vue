@@ -8,7 +8,9 @@
         backgroundColor: getBg(column, row)
         }"
         @click="clickMap($event,column, row)"
-    />
+    >
+      <img :src="getIcon(column, row)" />
+    </div>
   </div>
 </div>
 </template>
@@ -27,7 +29,7 @@ export default {
   methods: {
     getBg (col, row) {
       const slot = this.$store.getters.getSlotValue({ col, row })
-      return slot.visible ? this.roomTypes[slot.type].color : '#888'
+      return slot.clicked ? this.roomTypes[slot.type].color : '#888'
     },
     clickMap (event, col, row) {
       if (!this.canClick) {
@@ -37,7 +39,7 @@ export default {
       const slot = this.$store.getters.getSlotValue({ col, row })
       const slotFun = constants.map.rooms[slot.type].click
       this.$store.dispatch(slotFun.name, {
-        value: slotFun.value,
+        data: slotFun.data,
         clicked: slot.clicked
       })
       this.$store.dispatch('setClicked', { col, row })
@@ -46,6 +48,14 @@ export default {
     blockClick () {
       this.canClick = false
       setTimeout(() => { this.canClick = true }, 500)
+    },
+    getIcon (col, row) {
+      const slot = this.$store.getters.getSlotValue({ col, row })
+      let img = require('@/assets/mapicons/qm.png')
+      if (slot.visible) {
+        img = require('@/assets/mapicons/' + constants.map.rooms[slot.type].icon)
+      }
+      return img
     }
   }
 }
@@ -58,15 +68,22 @@ export default {
 .map-row {
   width: 100px;
   height: 100px;
-  display: inline-block;
+  display: inline-flex;
   box-sizing: border-box;
   border: 1px solid black;
   border-radius: 4px;
   transition: 1s;
+  justify-content: center;
+  align-items: center;
 }
 .map-col {
   margin: 0;
   padding: 0;
   height: 100px;
+}
+img {
+  width: 50px;
+  height: 50px;
+  transition: 1s;
 }
 </style>

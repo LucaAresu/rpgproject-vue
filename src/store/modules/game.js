@@ -87,11 +87,18 @@ const actions = {
     commit('SET_CLICKED', payload)
   },
 
-  addMoney ({ commit }, payload) {
+  addMoney ({ commit, state, dispatch }, payload) {
     if (payload.clicked) {
       return
     }
-    commit('ADD_MONEY', payload.value)
+    const value = payload.data.fun(state.level)
+    const str = payload.data.log.replace('{VALUE}', value)
+    dispatch('logAddEntry', {
+      message: str,
+      type: 'MAP',
+      action: constants.application.logActions.MONEY
+    })
+    commit('ADD_MONEY', value)
   }
 }
 

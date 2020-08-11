@@ -20,8 +20,7 @@ const CRITICAL_DIVIDER = 8
 export default {
   totalCharacters: 6,
   exp: {
-    base: 1000,
-    multiplier: 2.5
+    base: 100
   },
   stats: {
     base: 10,
@@ -40,5 +39,8 @@ export default {
     Schivata: (level, { AGI }) => (BASE_DODGE + ((AGI * AGI) / (DODGE_DIVIDER * level))).toFixed(2),
     HP: (level, { VIT }) => BASE_HP + (HP_LVL_MULTIPLIER * level) + (HP_VIT_MULTIPLIER * VIT),
     Critico: (level, { LUCK }) => (BASE_CRITICAL + ((LUCK * LUCK) / (CRITICAL_DIVIDER * level))).toFixed(2)
+  },
+  strings: {
+    nextLevel: 'Complimenti! Hai appena raggiunto il livello {LEVEL}'
   }
 }
