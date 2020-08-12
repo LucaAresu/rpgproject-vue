@@ -14,10 +14,17 @@ const state = {
     STR: 1,
     MAG: 1,
     AGI: 1,
-    STAM: 1,
     VIT: 1,
     LUCK: 1
+  },
+  params: {
+    ATK: 0,
+    MAG: 0,
+    DODGE: 0,
+    CRIT: 0
+
   }
+
 }
 
 const getters = {
@@ -54,6 +61,12 @@ const mutations = {
     state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats)
     state.currentMana = constants.character.paramFormulas.Mana(state.level, state.stats)
     state.maxMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+  },
+  'RECALCULATE_PARAMS' (state) {
+    state.params.ATK = constants.character.paramFormulas.Attacco(state.level, state.stats)
+    state.params.MAG = constants.character.paramFormulas.Magia(state.level, state.stats)
+    state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, state.stats)
+    state.params.CRIT = constants.character.paramFormulas.Critico(state.level, state.stats)
   },
   'ADD_STATS' (state, newstats) {
     state.stats = Object.keys(state.stats).map(ele => ({ [ele]: state.stats[ele] + newstats[ele] })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
@@ -92,6 +105,9 @@ const mutations = {
   },
   'SET_HEALTH' (state, newHealth) {
     state.currentHp = newHealth
+  },
+  'SPEND_MANA' (state, mana) {
+    state.mana -= mana
   }
 }
 const actions = {
@@ -103,10 +119,12 @@ const actions = {
   },
   createCharacter ({ commit }, payload) {
     commit('CREATE_CHARACTER', payload)
+    commit('RECALCULATE_PARAMS')
   },
   addStats ({ commit }, payload) {
     commit('SET_POINTS_TO_ALLOCATE', payload.points)
     commit('ADD_STATS', payload.stats)
+    commit('RECALCULATE_PARAMS')
   },
   addExp ({ commit, getters, dispatch }, exp) {
     // uso un ciclo perchè l'assegnazione di exp potrebbe non essere linare, e quindi successivamente non risolvibile con una semplice divisione
@@ -117,6 +135,7 @@ const actions = {
         exp -= expRequiredToNextLevel
         commit('ADD_EXP', exp)
         commit('ADD_LEVEL')
+        commit('RECALCULATE_PARAMS')
         const levelMessage = constants.character.strings.nextLevel.replace('{LEVEL}', getters.getCharacterLevel)
         dispatch('logAddEntry', {
           message: levelMessage,
@@ -142,12 +161,20 @@ const actions = {
     })
     dispatch('addExp', exp)
   },
+  /*
+  damage: {
+    damage: i danni presi
+    monster: chi li ha fatti
+    message: constants.application.messages
+    ability: il nome dell'abilità
+  }
 
-  takeDamage ({ commit, dispatch, state }, damage) {
+   */
+  playerTakeDamage ({ commit, dispatch }, damage) {
     commit('TAKE_DAMAGE', damage.damage)
-    const message = constants.application.messages.takeDamage.replace('{DAMAGE}', damage.damage).replace('{ENTITY}', damage.entity)
+    damage.message = damage.message.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
     dispatch('logAddEntry', {
-      message,
+      message: damage.message,
       type: 'COMBAT',
       action: constants.application.logActions.DAMAGE_RECEIVED
     })
@@ -161,21 +188,25 @@ const actions = {
       type: 'MAP',
       action: constants.application.logActions.DAMAGE_RECEIVED
     })
-    dispatch('takeDamage', {
-      entity: 'Trappola',
+    dispatch('playerTakeDamage', {
+      message: constants.application.messages.takeMapDamage,
+      monster: 'Trappola',
       damage
     })
   },
-
-  heal ({ commit, dispatch, state }, heal) {
-    if ((heal + state.currentHp) >= state.maxHp) {
+  /*
+  message: constants.application.messages <
+  heal: la quantità della cura
+ */
+  playerHeal ({ commit, dispatch, state }, heal) {
+    if ((heal.heal + state.currentHp) >= state.maxHp) {
       commit('SET_HEALTH', state.maxHp)
     } else {
-      commit('HEAL', heal)
+      commit('HEAL', heal.heal)
     }
-    const message = constants.application.messages.heal.replace('{HEAL}', heal)
+    heal.message = heal.message.replace('{HEAL}', heal.heal)
     dispatch('logAddEntry', {
-      message,
+      message: heal.message,
       type: 'COMBAT',
       action: constants.application.logActions.HEAL
     })
@@ -187,14 +218,39 @@ const actions = {
     }
     const heal = payload.data.fun(state.maxHp)
     const message = payload.data.log.replace('{VALUE}', heal)
-    dispatch('heal', heal)
+    dispatch('playerHeal', {
+      heal,
+      message: constants.application.messages.mapHeal
+    })
     dispatch('logAddEntry', {
       message,
       type: 'MAP',
       action: constants.application.logActions.HEAL
     })
-  }
+  },
+  /*
+  actiontype {
+    action: ATK MAG ecc, i bottoni
+    type: nome dell'attacco tipo TESTATA
+    */
+  playerAction ({ dispatch }, actionType) {
+    switch (actionType.action) {
+      case 'ATK': dispatch('attackAction', actionType); break
+    }
+  },
 
+  attackAction ({ commit, getters, state }, actionType) {
+    const monster = getters.getMonster
+    const attack = constants.playerattacks[actionType.action][actionType.type]
+    const effects = attack.effect
+
+    commit('TAKE_DAMAGE', attack.cost.hp)
+    commit('SPEND_MANA', attack.cost.mana)
+
+    if (effects.monster.damage) {
+      commit('MONSTER_TAKE_DAMAGE', effects.monster.damage(state.params, monster))
+    }
+  }
 }
 
 export default {

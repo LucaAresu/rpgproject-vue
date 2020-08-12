@@ -49,7 +49,6 @@ img {
   height: 25px;
 }
 .healthbar {
-  opacity: 1;
   margin-left: 2rem;
   width: 10rem;
 }

@@ -21,6 +21,18 @@ const requiredUnlogged = next => {
   }
 }
 
+const statsRouteValidation = next => {
+  if (!store.getters.isInCombat && store.getters.isCharacterCreated) {
+    next()
+  } else {
+    if (store.getters.getLogged) {
+      next({ name: 'Home' })
+    } else {
+      next({ name: 'auth' })
+    }
+  }
+}
+
 const routes = [
   {
     path: '/',
@@ -46,17 +58,33 @@ const routes = [
           loading: PacmanLoader
         }),
         beforeEnter (to, from, next) {
-          requiredLogin(next)
+          statsRouteValidation(next)
         }
       },
       {
         path: 'talents',
         name: 'Talents',
         beforeEnter (to, from, next) {
-          requiredLogin(next)
+          statsRouteValidation(next)
         }
       }
     ]
+  },
+  {
+    path: '/scan',
+    name: 'Scan',
+    component: () => import('../views/Scan'),
+    beforeEnter (to, from, next) {
+      if (store.getters.isInCombat) {
+        next()
+      } else {
+        if (store.getters.getLogged) {
+          next({ name: 'Home' })
+        } else {
+          next({ name: 'auth' })
+        }
+      }
+    }
   },
   {
     path: '/auth',

@@ -30,6 +30,9 @@ export default {
 ul {
   list-style: none;
 }
+li {
+  margin: 0.5rem;
+}
 .pop-enter-active {
   animation: pop-in 500ms ease-out forwards
 }
@@ -46,7 +49,6 @@ ul {
 }
 .pop-leave-active {
   animation: pop-out 500ms ease-out forwards;
-  position: absolute;
 }
 @keyframes pop-out {
   from {

@@ -30,6 +30,11 @@ export default {
   font-family: 'Recursive', sans-serif;}
 #app {
   overflow: hidden;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
 }
 .slide-enter-active {
   animation: slide-in 100ms ease-out forwards;

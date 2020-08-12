@@ -1,22 +1,42 @@
 <template>
   <div class="gamearea">
-    <game-resources />
-    <game-map />
-    <div class="maplog">
-      Log di mappa
-    </div>
-    <map-log mode="getMapLog" />
+    <transition name="pop" mode="out-in">
+      <game-resources v-if="!isInCombat" />
+      <div class="placeholder-div-for-animation" v-else />
+    </transition>
+    <transition  name="pop" mode="out-in">
+    <game-map v-if="!isInCombat" />
+    <combat-intro v-else-if="!hasCombatStarted" />
+    <combat-area v-else />
+    </transition>
+    <transition name="pop" mode="out-in">
+      <log-area v-if="!isInCombat || (isInCombat && hasCombatStarted)"/>
+      <div class="placeholder-div-for-animation" v-else />
+    </transition>
   </div>
 </template>
 <script>
 import gameMap from './Map'
 import gameResources from './Resources'
-import mapLog from './Log'
+import combatArea from './CombatArea'
+import combatIntro from './CombatIntro'
+import logArea from './LogArea'
+
 export default {
   components: {
     gameMap,
     gameResources,
-    mapLog
+    combatArea,
+    combatIntro,
+    logArea
+  },
+  computed: {
+    hasCombatStarted () {
+      return this.$store.getters.hasCombatStarted
+    },
+    isInCombat () {
+      return this.$store.getters.isInCombat
+    }
   }
 }
 </script>
@@ -26,23 +46,27 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-.maplog {
-  margin: 2rem;
-  border: 1px solid #ccc;
-  box-shadow: 1px 1px 1px #ccc;
-  padding: 1rem;
-  width: 100%;
-  text-align: center;
-  background-color: #2a9d8f;
+.pop-enter-active {
+  animation: appear 500ms ease-out forwards;
 }
-@media (min-width: 800px) {
-  .maplog{
-    width: 50%;
+@keyframes appear {
+  from {
+      transform: scale(0)
+  }
+  to {
+      transform: scale(1);
   }
 }
-@media (min-width: 1200px) {
-  .maplog{
-    width: 30%;
+.pop-leave-active {
+  animation: disappear 500ms ease-out forwards;
+}
+@keyframes disappear{
+  from {
+      transform: scale(1)
+  }
+  to{
+      transform: scale(0);
   }
 }
+
 </style>

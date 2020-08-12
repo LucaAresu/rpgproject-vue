@@ -1,8 +1,13 @@
 export default {
   appName: 'AppName',
+  atb: {
+    tick: 50,
+    color: '#ffc857'
+  },
   messages: {
-    takeDamage: 'Sono stati ricevuti {DAMAGE} danni da parte di {ENTITY}',
-    heal: 'Ti curi di {HEAL}'
+    takeMapDamage: 'Sono stati ricevuti {DAMAGE} danni da parte di {MONSTER}',
+    heal: 'Ti curi di {HEAL}',
+    mapHeal: 'Ti curi di {HEAL}'
   },
   logActions: {
     DAMAGE_RECEIVED: {
@@ -19,6 +24,9 @@ export default {
     },
     HEAL: {
       color: '#90be6d'
+    },
+    DISCOVER_MONSTER: {
+      color: '#9d0208'
     }
   }
 }
