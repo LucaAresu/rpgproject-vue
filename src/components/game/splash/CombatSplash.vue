@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="combatsplash">
     <combat-intro v-if="!monsterDefeated" />
     <combat-outro v-else-if="isCharacterAlive" />
     <death-screen v-else />
@@ -27,3 +27,15 @@ export default {
   }
 }
 </script>
+<style scoped>
+.combatsplash {
+  width: 100%;
+}
+@media(min-width: 800px) {
+  .combatsplash {
+    width: 50%;
+    padding: 1rem;
+  }
+}
+
+</style>

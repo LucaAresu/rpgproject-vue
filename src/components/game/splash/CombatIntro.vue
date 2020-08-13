@@ -25,12 +25,18 @@ export default {
 }
 </script>
 <style scoped>
+.body-combatintro {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
 .vs {
   text-align: center;
   font-size: 3rem;
   border: 1px solid black;
   box-shadow: 1px 1px 1px #ccc;
   background-color: #ef233c;
+  width: 100%;
 }
 .button-combatintro button {
   width: 100%;

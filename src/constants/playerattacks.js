@@ -18,6 +18,7 @@ const damageOscillation = (damage, oscillation) => {
 }
 
 const calculateDamage = (params, oscillation, damage) => critFormula(damageOscillation(damage, oscillation), params.CRIT)
+// aggiungere riduzione del danno in base all'armor
 
 const ATK_BASE_MULTIPLIER = 1.5
 export default {

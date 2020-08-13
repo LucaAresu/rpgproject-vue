@@ -10,8 +10,8 @@ const bosses = {
     defeatedSentence: 'I merdini sono finalmente liberi di girovagare per il castello, apri la porta e finalmente aria fresca... ',
     stats: {
       HP: 10000,
-      ATK: 15,
-      MAG: 15,
+      ATK: 1522,
+      MAG: 111115,
       DEF: 30
     },
     cooldown: 8000,

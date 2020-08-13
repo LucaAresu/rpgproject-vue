@@ -36,7 +36,7 @@ export default {
     label: 'Peto... con sorpresa',
     message: {
       damage: '{MONSTER} si gonfia incredibilmente per rilasciare un {ABILITY}. Ricevi {DAMAGE} danni, ma non perdi la dignità',
-      dodge: 'La molletta al naso ti protegge da {ABILITY}, ma '
+      dodge: 'La molletta al naso ti protegge da {ABILITY}, ma non protegge {MONSTER} dall\'umiliazione'
     },
     attack: (monster, player, dispatch) => ({
       player: {

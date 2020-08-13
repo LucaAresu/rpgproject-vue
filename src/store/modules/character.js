@@ -329,8 +329,12 @@ const actions = {
     const attack = constants.playerattacks[actionType.action][actionType.type]
     const effects = attack.effect
 
-    commit('TAKE_DAMAGE', attack.cost.hp)
-    commit('SPEND_MANA', attack.cost.mana)
+    if (attack.cost.hp) {
+      commit('TAKE_DAMAGE', attack.cost.hp)
+    }
+    if (attack.cost.mana) {
+      commit('SPEND_MANA', attack.cost.mana)
+    }
 
     if (effects.monster.damage) {
       const damageDone = effects.monster.damage(state.params, monster)
@@ -341,6 +345,7 @@ const actions = {
         commit('MONSTER_TAKE_DAMAGE', damageDone)
       }
     }
+    // scrivere log
   }
 }
 

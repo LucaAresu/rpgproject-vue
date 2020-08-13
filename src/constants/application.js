@@ -4,6 +4,7 @@ export default {
     tick: 50,
     color: '#ffc857'
   },
+  healthbarTransition: '500ms',
   dropViewDelay: 300,
   messages: {
     takeMapDamage: 'Sono stati ricevuti {DAMAGE} danni da parte di {MONSTER}',

@@ -16,6 +16,7 @@
             color="#ffc857"
             :current="monsterAtb.current"
             :max="monsterAtb.total"
+            :transition="100"
           />
         </div>
         <transition mode="out-in" name="attacklabel">
@@ -40,10 +41,17 @@
           :max="$store.getters.getMaxHp"
         />
         <resource-bar
-          height="0.5rem"
+          height="0.7rem"
+          color="blue"
+          :current="$store.getters.getCurrentMana"
+          :max="$store.getters.getMaxMana"
+        />
+        <resource-bar
+          height="0.7rem"
           color="#ffc857"
           :current="playerAtb.current"
           :max="playerAtb.total"
+          :transition="100"
         />
       </div>
       <div class="name">
