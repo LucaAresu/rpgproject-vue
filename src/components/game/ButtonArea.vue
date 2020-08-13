@@ -2,19 +2,23 @@
 <div class="buttonarea">
   <div class="attackbuttons">
     <div class="button">
-      <button class="attack" :disabled="selected === 'ATK'" @click="pickArea('ATK')">Attacchi</button>
+      <button class="attack" :disabled="selected ==='ATK'" @click="pickArea('ATK')">Attacchi</button>
       </div>
     <div class="button">
-      <button class="magia" :disabled="selected === 'MAG'" @click="pickArea('MAG')">Magie</button>
+      <button class="magia" :disabled="selected ==='MAG'" @click="pickArea('MAG')">Magie</button>
       </div>
     <div class="button" >
-      <button class="difesa" :disabled="selected === 'DEF'" @click="pickArea('DEF')">Difesa</button>
+      <button class="difesa" :disabled="selected ==='DEF'" @click="pickArea('DEF')">Difesa</button>
       </div>
     <div class="button">
       <button class="altro" :disabled="selected === 'ALT'" @click="pickArea('ALT')">Altro</button>
       </div>
   </div>
-  <button-description :selected="selected" />
+  <button-description
+    :canAttack="canAttack"
+    :selected="selected"
+    @action="$emit('action',$event)"
+  />
 </div>
 </template>
 <script>
@@ -25,10 +29,14 @@ export default {
       selected: this.$store.getters.getSelectedButtonInCombat
     }
   },
+  props: ['canAttack'],
   methods: {
     pickArea (choice) {
       this.selected = choice
       this.$store.dispatch('setSelectedButtonInCombat', choice)
+    },
+    isDisabled (stat) {
+      return !this.canAttack || this.selected === stat
     }
   },
   components: {

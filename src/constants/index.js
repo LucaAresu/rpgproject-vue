@@ -5,6 +5,7 @@ import map from './map'
 import monsters from './monsters'
 import monsterattacks from './monsterattacks'
 import playerattacks from './playerattacks'
+import bosses from './bosses'
 
 export default {
   application,
@@ -13,5 +14,6 @@ export default {
   map,
   monsters,
   monsterattacks,
-  playerattacks
+  playerattacks,
+  bosses
 }

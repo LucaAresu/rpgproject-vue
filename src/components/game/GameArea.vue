@@ -6,7 +6,7 @@
     </transition>
     <transition  name="pop" mode="out-in">
     <game-map v-if="!isInCombat" />
-    <combat-intro v-else-if="!hasCombatStarted" />
+    <combat-splash v-else-if="!hasCombatStarted" />
     <combat-area v-else />
     </transition>
     <transition name="pop" mode="out-in">
@@ -19,7 +19,7 @@
 import gameMap from './Map'
 import gameResources from './Resources'
 import combatArea from './CombatArea'
-import combatIntro from './CombatIntro'
+import combatSplash from './splash/CombatSplash'
 import logArea from './LogArea'
 
 export default {
@@ -27,7 +27,7 @@ export default {
     gameMap,
     gameResources,
     combatArea,
-    combatIntro,
+    combatSplash,
     logArea
   },
   computed: {

@@ -49,7 +49,7 @@
       <div class="name">
         {{ $store.getters.getName }}
       </div>
-      <button-area />
+      <button-area @action="handleAction($event)" :canAttack="canAttack" />
     </div>
   </div>
 </template>
@@ -61,7 +61,15 @@ export default {
   data () {
     return {
       timeout: null,
-      n: 0
+      n: 0,
+      monsterAtb: this.$store.getters.getMonsterAtb,
+      playerAtb: this.$store.getters.getPlayerAtb
+    }
+  },
+  methods: {
+    handleAction (action) {
+      this.$store.dispatch('playerAction', action)
+      this.playerAtb.current = 0
     }
   },
   components: {
@@ -69,6 +77,9 @@ export default {
     buttonArea
   },
   computed: {
+    canAttack () {
+      return this.playerAtb.current >= this.playerAtb.total
+    },
     attackKey () {
       return this.$store.getters.getAttackKey
     },
@@ -77,23 +88,52 @@ export default {
     },
     monster () {
       return this.$store.getters.getMonster
-    },
-    playerAtb () {
-      return this.$store.getters.getPlayerAtb
-    },
-    monsterAtb () {
-      return this.$store.getters.getMonsterAtb
     }
   },
   created () {
+    const monsterAtb = this.monsterAtb
+    const playerAtb = this.playerAtb
     const store = this.$store
-    this.timeout = setInterval(() => store.dispatch('advanceAtb'), constants.application.atb.tick)
+    this.timeout = setInterval(() => {
+      const tick = constants.application.atb.tick
+      if (playerAtb.current < playerAtb.total) {
+        playerAtb.current += tick
+      }
+      if (playerAtb.current > playerAtb.total) {
+        playerAtb.current = playerAtb.total
+      }
+
+      if (monsterAtb.current < monsterAtb.total) {
+        monsterAtb.current += tick
+      }
+
+      if (monsterAtb.current >= monsterAtb.total) {
+        store.dispatch('monsterAttack')
+      }
+    }, constants.application.atb.tick)
   },
   destroyed () {
     clearInterval(this.timeout)
     this.timeout = null
+    this.$store.dispatch('setAtb', {
+      player: this.playerAtb.current,
+      monster: this.monsterAtb.current
+    })
   }
 }
+/* advanceAtb ({ commit, state, dispatch }) {
+    const player = state.atb.player
+    const monster = state.atb.monster
+    const tick = constants.application.atb.tick
+
+    if (!(monster.current === monster.total)) {
+      commit('ADVANCE_ATB', 'monster')
+      monster.current += tick
+      if (monster.current >= monster.total) {
+        dispatch('monsterAttack')
+      }
+    }
+  }, */
 </script>
 <style scoped>
 .combatarea {

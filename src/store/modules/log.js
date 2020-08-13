@@ -17,6 +17,13 @@ const mutations = {
 }
 
 const actions = {
+  /* entry : {
+    message: il messaggio
+    type: in che log va visto (map, combat)
+    action, constants.application.logActions
+  }
+
+  */
   logAddEntry ({ commit }, entry) {
     entry = { ...entry, id: Date.now() + ' ' + Math.random() }
     commit('LOG_ADD_ENTRY', entry)

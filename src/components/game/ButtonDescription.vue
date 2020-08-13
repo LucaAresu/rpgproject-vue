@@ -6,18 +6,19 @@
           @mouseover="descHover=index"
           :style="{backgroundColor: attack.color}"
           @click="playerAction(index)"
+          :disabled="!canAttack"
           > {{attack.name}} </button>
       </div>
     </div>
     <div class="attackdescription">
-      FARE DESCRIZIONE {{descHover}}
+      FARE DESCRIZIONE {{descHover}} {{canAttack}}
     </div>
   </div>
 </template>
 <script>
 import constants from '../../constants'
 export default {
-  props: ['selected'],
+  props: ['selected', 'canAttack'],
   computed: {
     attackList () {
       return constants.playerattacks[this.selected]
@@ -33,11 +34,11 @@ export default {
   },
   methods: {
     playerAction (index) {
-      this.billy = index
-      this.$store.dispatch('playerAction', {
+      const action = {
         action: this.selected,
         type: index
-      })
+      }
+      this.$emit('action', action)
     }
   }
 }

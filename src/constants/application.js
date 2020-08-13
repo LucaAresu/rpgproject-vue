@@ -4,8 +4,10 @@ export default {
     tick: 50,
     color: '#ffc857'
   },
+  dropViewDelay: 300,
   messages: {
     takeMapDamage: 'Sono stati ricevuti {DAMAGE} danni da parte di {MONSTER}',
+    dodgeMapDamage: 'Prendi una trappola, ma abilmente la schivi',
     heal: 'Ti curi di {HEAL}',
     mapHeal: 'Ti curi di {HEAL}'
   },
@@ -27,6 +29,12 @@ export default {
     },
     DISCOVER_MONSTER: {
       color: '#9d0208'
+    },
+    DODGE: {
+      color: '#0096c7'
+    },
+    ADD_STAT: {
+      color: '#9bc53d'
     }
   }
 }

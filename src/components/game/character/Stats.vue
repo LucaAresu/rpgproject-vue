@@ -1,7 +1,7 @@
 <template>
   <div class="stats">
     <player-card />
-      <stats-card />
+    <stats-card />
   </div>
 </template>
 <script>

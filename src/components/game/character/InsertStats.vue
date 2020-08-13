@@ -1,14 +1,16 @@
 <template>
-  <div class="stats">
+  <div class="insert-stats">
     <div v-for="stat in statOrder" :key="stat" class="stat">
       <div class="button">
-        <button @click="$emit('remove', stat)" v-if="addedStats[stat]">-</button>
+        <button @click="$emit('tozero', stat)" v-show="addedStats[stat]">0</button>
+        <button @click="$emit('remove', stat)" v-show="addedStats[stat]">-</button>
       </div>
       <div class="text">
         {{stat}} {{ $store.getters.getSingleStat(stat) }} <span v-if="addedStats[stat]">(+{{ addedStats[stat] }})</span>
       </div>
       <div class="button">
         <button @click="$emit('add', stat)" v-show="pointsToSpend">+</button>
+        <button @click="$emit('max', stat)" v-show="pointsToSpend">MAX</button>
       </div>
     </div>
   </div>
@@ -19,7 +21,7 @@ export default {
 }
 </script>
 <style scoped>
-.stats {
+.insert-stats {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -27,6 +29,7 @@ export default {
   background-color: #fcf6bd;
 
 }
+
 .stat {
   display: flex;
   justify-content: space-between;

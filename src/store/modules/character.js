@@ -61,12 +61,34 @@ const mutations = {
     state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats)
     state.currentMana = constants.character.paramFormulas.Mana(state.level, state.stats)
     state.maxMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    state.stats = {
+      STR: 1,
+      MAG: 1,
+      AGI: 1,
+      VIT: 1,
+      LUCK: 1
+    }
+    state.level = 1
+  },
+  'DELETE_CHARACTER' (state) {
+    state.created = false
   },
   'RECALCULATE_PARAMS' (state) {
     state.params.ATK = constants.character.paramFormulas.Attacco(state.level, state.stats)
     state.params.MAG = constants.character.paramFormulas.Magia(state.level, state.stats)
     state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, state.stats)
     state.params.CRIT = constants.character.paramFormulas.Critico(state.level, state.stats)
+
+    // calculate new mana
+    const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
+    const newMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    state.maxMana = newMana
+    state.currentMana = Math.round(newMana * manaPercentage / 100)
+    // calculate new hp
+    const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
+    const newHp = constants.character.paramFormulas.HP(state.level, state.stats)
+    state.maxHp = newHp
+    state.currentHp = Math.round(newHp * hpPercentage / 100)
   },
   'ADD_STATS' (state, newstats) {
     state.stats = Object.keys(state.stats).map(ele => ({ [ele]: state.stats[ele] + newstats[ele] })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
@@ -81,9 +103,20 @@ const mutations = {
     state.maxHp = newHp
     state.currentHp = Math.round(newHp * hpPercentage / 100)
   },
+  /* payload: {
+  stat: str, dex ecc
+  points: 1 2 ecc
+  */
+  'ADD_SINGLE_STAT' (state, payload) {
+    state.stats[payload.stat] += payload.points
+  },
   'SET_POINTS_TO_ALLOCATE' (state, points) {
     state.statsToAllocate = points
   },
+  'ADD_POINTS_TO_ALLOCATE' (state, points) {
+    state.statsToAllocate += points
+  },
+
   'ADD_EXP' (state, exp) {
     state.exp += exp
   },
@@ -107,7 +140,7 @@ const mutations = {
     state.currentHp = newHealth
   },
   'SPEND_MANA' (state, mana) {
-    state.mana -= mana
+    state.currentMana -= mana
   }
 }
 const actions = {
@@ -170,26 +203,78 @@ const actions = {
   }
 
    */
-  playerTakeDamage ({ commit, dispatch }, damage) {
+  playerTakeDamage ({ commit, dispatch, state }, damage) {
+    const dodge = state.params.DODGE * 1
+    const roll = (Math.random() * 100).toFixed(2) * 1
+    if (roll <= dodge) {
+      dispatch('playerDodged', damage)
+      return
+    }
     commit('TAKE_DAMAGE', damage.damage)
-    damage.message = damage.message.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
+    damage.message = damage.message.damage.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
     dispatch('logAddEntry', {
       message: damage.message,
       type: 'COMBAT',
       action: constants.application.logActions.DAMAGE_RECEIVED
     })
-    // TODO FARE COSA PER LA MORTE
+    if (state.currentHp <= 0) {
+      dispatch('characterDeath')
+    }
   },
+
+  characterDeath ({ commit, getters }) {
+    commit('CHANGE_COMBAT_STATUS', true)
+    const monster = getters.getMonster
+    if (monster) {
+      commit('MONSTER_DEATH')
+    } else {
+      commit('END_COMBAT')
+    }
+  },
+  /*
+     damage: {
+    damage: i danni presi
+    monster: chi li ha fatti
+    message: constants.application.messages
+    ability: il nome dell'abilità
+  }
+  */
+  playerDodged ({ dispatch }, damage) {
+    const message = damage.message.dodge.replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
+    dispatch('logAddEntry', {
+      message,
+      type: 'COMBAT',
+      action: constants.application.logActions.DODGE
+    })
+  },
+
   takeDamageInMap ({ dispatch, state }, payload) {
     const damage = payload.data.fun(state.maxHp)
     const message = payload.data.log.replace('{VALUE}', damage)
+    const dodge = state.params.DODGE * 1
+    const roll = (Math.random() * 100).toFixed(2) * 1
+    if (roll <= dodge) {
+      dispatch('playerDodged', {
+        ability: 'Trappola',
+        message: { dodge: constants.application.messages.dodgeMapDamage }
+      })
+      dispatch('logAddEntry', {
+        message: constants.application.messages.dodgeMapDamage.replace('{ABILITY}', 'Trappola'),
+        type: 'MAP',
+        action: constants.application.logActions.DODGE
+      })
+      return
+    }
     dispatch('logAddEntry', {
       message,
       type: 'MAP',
       action: constants.application.logActions.DAMAGE_RECEIVED
     })
     dispatch('playerTakeDamage', {
-      message: constants.application.messages.takeMapDamage,
+      message: {
+        damage: constants.application.messages.takeMapDamage,
+        dodge: constants.application.messages.dodgeMapDamage
+      },
       monster: 'Trappola',
       damage
     })
@@ -248,7 +333,13 @@ const actions = {
     commit('SPEND_MANA', attack.cost.mana)
 
     if (effects.monster.damage) {
-      commit('MONSTER_TAKE_DAMAGE', effects.monster.damage(state.params, monster))
+      const damageDone = effects.monster.damage(state.params, monster)
+      if (damageDone >= monster.currentHp * 1) {
+        commit('MONSTER_SET_HEALTH', 0)
+        commit('MONSTER_DEATH')
+      } else {
+        commit('MONSTER_TAKE_DAMAGE', damageDone)
+      }
     }
   }
 }

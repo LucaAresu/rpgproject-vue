@@ -1,6 +1,10 @@
 export default {
   monsters: {
     MERDINO: {
+      levels: {
+        start: 1,
+        end: 20
+      },
       name: 'Merdino',
       icon: 'merdino.png',
       description: 'Il mostro più semplice da affrontare. Un semplice merdino, ha un semplice attacco naturale, e paga abbastanza bene in exp, una ventata d\'aria... fresca!',
@@ -11,8 +15,11 @@ export default {
         DEF: 5
       },
       cooldown: 10000,
-      exp: 20,
-      attacks: ['PETO', 'PETO2'],
+      drop: {
+        exp: 50,
+        money: 100
+      },
+      attacks: ['PETO', 'SUPERPETO'],
       firstAttack: 'PETO'
     }
   },
@@ -33,6 +40,9 @@ export default {
       level: 2,
       elite: 2
     }
-
+  },
+  dropEliteBonuses: {
+    exp: 4,
+    money: 4
   }
 }

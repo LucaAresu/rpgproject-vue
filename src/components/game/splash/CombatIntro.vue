@@ -25,5 +25,15 @@ export default {
 }
 </script>
 <style scoped>
+.vs {
+  text-align: center;
+  font-size: 3rem;
+  border: 1px solid black;
+  box-shadow: 1px 1px 1px #ccc;
+  background-color: #ef233c;
+}
+.button-combatintro button {
+  width: 100%;
+}
 
 </style>

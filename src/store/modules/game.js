@@ -15,39 +15,17 @@ const state = {
   selectedButtonInCombat: 'ATK',
   atb: {
     player: {
-      canAttack: false,
       current: 0,
-      total: 5000
+      total: 3000
     },
     monster: {
-      canAttack: false,
       current: 0,
       total: 0
     }
   },
   attackKey: 0
 }
-const elaborateMonster = (monster, level) => {
-  const monConst = constants.monsters.paramsBonuses
-  const HP = (monster.monster.stats.HP * (monConst.HP.level * level)) + (monster.monster.stats.HP * (monConst.HP.elite * monster.isElite))
-  const ATK = (monster.monster.stats.ATK * (monConst.ATK.level * level)) + (monster.monster.stats.ATK * (monConst.ATK.elite * monster.isElite))
-  const MAG = (monster.monster.stats.MAG * (monConst.MAG.level * level)) + (monster.monster.stats.MAG * (monConst.MAG.elite * monster.isElite))
-  const DEF = (monster.monster.stats.DEF * (monConst.DEF.level * level)) + (monster.monster.stats.DEF * (monConst.DEF.elite * monster.isElite))
 
-  return {
-    ...monster.monster,
-    stats: {
-      ATK,
-      MAG,
-      DEF
-    },
-    currentHp: HP,
-    maxHp: HP,
-    attacks: [...monster.monster.attacks],
-    isDefeated: false,
-    nextAttack: monster.monster.firstAttack
-  }
-}
 const getters = {
   getNumberOfRows: state => state.map.rows,
   getCurrentLevel: state => state.level,
@@ -92,23 +70,23 @@ const mutations = {
   'START_COMBAT' (state) {
     state.hasCombatStarted = true
   },
+  'END_COMBAT' (state) {
+    state.hasCombatStarted = false
+  },
   'SET_MONSTER_TO_FIGHT' (state, monster) {
     state.monster = { ...monster }
     state.atb.monster.total = monster.cooldown
     state.atb.monster.current = 0
     state.attackKey = Math.random()
   },
+  'DELETE_MONSTER' (state) {
+    state.monster = null
+  },
   'SET_SELECTED_COMBAT_BUTTON' (state, choice) {
     state.selectedButtonInCombat = choice
   },
   'SET_MONSTER_MAX_ATB' (state, value) {
     state.atb.monster.total = value
-  },
-  'ADVANCE_ATB' (state, who) {
-    state.atb[who].current += constants.application.atb.tick
-  },
-  'CHANGE_CAN_ATTACK' (state, payload) {
-    state.atb[payload.who].canAttack = payload.can
   },
   'RESET_ATB' (state, who) {
     state.atb[who].current = 0
@@ -126,9 +104,17 @@ const mutations = {
   'MONSTER_SET_HEALTH' (state, health) {
     state.monster.currentHp = health
   },
-
   'MONSTER_TAKE_DAMAGE' (state, damage) {
     state.monster.currentHp -= damage
+  },
+  'MONSTER_DEATH' (state) {
+    state.monster.isDefeated = true
+    state.hasCombatStarted = false
+  },
+  'START_AGAIN' (state) {
+    state.isInCombat = false
+    state.hasCombatStrated = false
+    state.level = 0
   }
 }
 
@@ -189,7 +175,7 @@ const actions = {
     commit('SET_SELECTED_COMBAT_BUTTON', choice)
   },
 
-  addMoney ({ commit, state, dispatch }, payload) {
+  addMoneyInMap ({ commit, state, dispatch }, payload) {
     if (payload.clicked) {
       return
     }
@@ -207,45 +193,65 @@ const actions = {
     if (payload.clicked) {
       return
     }
-    const monster = payload.data.fun()
-    const message = payload.data.log.replace('{NAME}', monster.monster.name)
+    const monsterType = payload.data.fun()
+    dispatch('getMonsterToFight', monsterType)
+    const monster = state.monster
+    const message = payload.data.log.replace('{NAME}', monster.name)
     dispatch('logAddEntry', {
       message,
       type: 'MAP',
       action: constants.application.logActions.DISCOVER_MONSTER
     })
     commit('CHANGE_COMBAT_STATUS', true)
-    const elaboratedMonster = elaborateMonster(monster, state.level)
-    commit('SET_MONSTER_TO_FIGHT', elaboratedMonster)
   },
 
-  advanceAtb ({ commit, state, dispatch }) {
-    const player = state.atb.player
-    const monster = state.atb.monster
-    const tick = constants.application.atb.tick
+  getMonsterToFight ({ state, commit }, type) {
+    const monsters = Object.keys(constants.monsters.monsters).map(ele => constants.monsters.monsters[ele])
+    const bosses = Object.keys(constants.bosses).map(ele => constants.bosses[ele])
+    const currentLevel = state.level
+    let monsterList
+    let monster
+    if (type === 'BOSS') {
+      monsterList = bosses.filter(ele => currentLevel >= ele.levels.start && currentLevel <= ele.levels.end)
+    } else {
+      monsterList = monsters.filter(ele => currentLevel >= ele.levels.start && currentLevel <= ele.levels.end)
+    }
+    const randomIndex = Math.floor(monsterList.length * Math.random())
+    monster = monsterList[randomIndex]
 
-    if (!(player.current === player.total)) {
-      commit('ADVANCE_ATB', 'player')
-      player.current += tick
-      if (player.current >= player.total) {
-        commit('SET_ATB', {
-          who: 'player',
-          value: player.total
-        })
-        commit('CHANGE_CAN_ATTACK', {
-          who: 'player',
-          can: true
-        })
-      }
+    // faccio una copia totale del mostro per poter manipolare le stats senza avere effetti collaterali
+    monster = {
+      ...monster,
+      attacks: [...monster.attacks],
+      drop: { ...monster.drop },
+      stats: { ...monster.stats }
+    }
+    if (type === 'ELITE') {
+      Object.keys(monster.stats).forEach(ele => { monster.stats[ele] *= constants.monsters.paramsBonuses[ele].elite })
+      monster.drop.exp *= constants.monsters.dropEliteBonuses.exp
+      monster.drop.money *= constants.monsters.dropEliteBonuses.money
+      monster.icon = 'elite/' + monster.icon
+    }
+    if (type === 'BOSS') {
+      monster.isBoss = true
     }
 
-    if (!(monster.current === monster.total)) {
-      commit('ADVANCE_ATB', 'monster')
-      monster.current += tick
-      if (monster.current >= monster.total) {
-        dispatch('monsterAttack')
-      }
-    }
+    Object.keys(monster.stats).forEach(ele => { monster.stats[ele] *= constants.monsters.paramsBonuses[ele].level })
+    monster.currentHp = monster.stats.HP
+    monster.maxHp = monster.stats.HP
+    monster.isDefeated = false
+    monster.nextAttack = monster.firstAttack
+    commit('SET_MONSTER_TO_FIGHT', monster)
+  },
+  setAtb ({ commit }, atbs) {
+    commit('SET_ATB', {
+      who: 'player',
+      value: atbs.player
+    })
+    commit('SET_ATB', {
+      who: 'monster',
+      value: atbs.monster
+    })
   },
 
   monsterTakeHeal ({ state, commit }, heal) {
@@ -253,6 +259,16 @@ const actions = {
       commit('MONSTER_SET_HEALTH', state.monster.maxHp)
     } else {
       commit('MONSTER_HEAL', heal)
+    }
+  },
+
+  monsterTakeDamage ({ state, commit }, damage) {
+    const monster = state.monster
+    if (damage >= monster.currentHp * 1) {
+      commit('MONSTER_SET_HEALTH', 0)
+      commit('MONSTER_DEATH')
+    } else {
+      commit('MONSTER_TAKE_DAMAGE', damage)
     }
   },
 
@@ -275,7 +291,7 @@ const actions = {
       dispatch('playerHeal', effects.player.heal)
     }
     if (effects.monster.damage) {
-      dispatch('monsterTakeDamage', monster.damage)
+      dispatch('monsterTakeDamage', effects.monster.damage)
     }
     if (effects.monster.heal) {
       dispatch('monsterTakeHeal', effects.monster.heal)
@@ -283,7 +299,60 @@ const actions = {
 
     commit('SET_MONSTER_NEXT_ATTACK', monster.attacks[nextAttack])
     commit('RESET_ATB', 'monster')
+  },
+
+  endCombat ({ state, commit, dispatch }) {
+    const monster = state.monster
+    dispatch('handleDrops', monster.drop)
+    commit('CHANGE_COMBAT_STATUS', false)
+    commit('DELETE_MONSTER')
+  },
+
+  handleDrops ({ commit, dispatch, state }, drops) {
+    dispatch('addExp', drops.exp)
+    commit('ADD_MONEY', drops.money)
+    if (state.monster.isBoss) {
+      dispatch('createMap')
+    }
+  },
+  /*
+  /* payload: {
+    clicked: true o false
+    data: {
+      fun: {
+        stat: str, dex ecc
+        points: 1 2 ecc
+      }
+      log: il messaggio
+    }
+  */
+  incStats ({ commit, dispatch }, payload) {
+    if (payload.clicked) {
+      return
+    }
+    const stat = payload.data.fun()
+    const message = payload.data.log.replace('{VALUE}', stat.quantity)
+    if (stat.tipo === 'LIBERA') {
+      commit('ADD_POINTS_TO_ALLOCATE', stat.quantity)
+    } else {
+      commit('ADD_SINGLE_STAT', {
+        stat: stat.tipo,
+        points: stat.quantity
+      })
+    }
+    dispatch('logAddEntry', {
+      type: 'MAP',
+      message,
+      action: constants.application.logActions.ADD_STAT
+    })
+  },
+
+  startAgain ({ commit }) {
+    commit('DELETE_CHARACTER')
+    commit('DELETE_MONSTER')
+    commit('START_AGAIN')
   }
+
 }
 
 export default {

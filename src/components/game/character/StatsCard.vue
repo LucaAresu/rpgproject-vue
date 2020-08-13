@@ -8,11 +8,13 @@
       :addedStats="addedStats"
       @remove="remove($event)"
       @add="add($event)"
+      @tozero="removeAll($event)"
+      @max="addMax($event)"
     />
     <param-view
       :combinatedStats="({ ...combinatedStats})"
     />
-     </div>
+  </div>
      <div class="buttons">
        <button :disabled="isButtonDisabled" @click="upgradeStats">Conferma</button>
      </div>
@@ -40,10 +42,24 @@ export default {
         this.pointsToSpend--
       }
     },
+    addMax (stat) {
+      if (this.pointsToSpend) {
+        this.addedStats = { ...this.addedStats, [stat]: this.addedStats[stat] + this.pointsToSpend }
+        this.pointsToSpend = 0
+      }
+    },
     remove (stat) {
       if (this.addedStats[stat]) {
         this.addedStats = { ...this.addedStats, [stat]: this.addedStats[stat] - 1 }
         this.pointsToSpend++
+      }
+    },
+    removeAll (stat) {
+      if (this.addedStats[stat]) {
+        this.addedStats = { ...this.addedStats }
+        const points = this.addedStats[stat]
+        this.addedStats[stat] = 0
+        this.pointsToSpend += points
       }
     },
     upgradeStats () {
@@ -74,7 +90,7 @@ export default {
 .statscard {
   border: 1px solid #ccc;
   width: 100%;
-  margin: 1rem;
+  margin: 1rem 0;
   box-shadow: 1px 1px 1px #ccc;
 }
 .body {

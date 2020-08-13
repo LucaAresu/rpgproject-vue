@@ -3,7 +3,6 @@ const critFormula = (damage, crit) => {
   const remaining = crit % 100
   const roll = (Math.random() * 100).toFixed(2)
   if (roll <= remaining) { // ha crittato
-    console.log('crit')
     extra += 1
   }
   return (damage * (Math.pow(2, extra))).toFixed(0)
@@ -18,6 +17,8 @@ const damageOscillation = (damage, oscillation) => {
   return damage - damagePercent
 }
 
+const calculateDamage = (params, oscillation, damage) => critFormula(damageOscillation(damage, oscillation), params.CRIT)
+
 const ATK_BASE_MULTIPLIER = 1.5
 export default {
   ATK: {
@@ -31,7 +32,7 @@ export default {
       },
       effect: {
         monster: {
-          damage: (params, monster) => critFormula(damageOscillation(params.ATK * ATK_BASE_MULTIPLIER, 20), params.CRIT)
+          damage: (params, monster) => calculateDamage(params, 20, params.ATK * ATK_BASE_MULTIPLIER)
         }
       }
     },
@@ -45,7 +46,7 @@ export default {
       },
       effect: {
         monster: {
-          damage: (params, monster) => critFormula(damageOscillation(params.ATK * ATK_BASE_MULTIPLIER, 20), params.CRIT)
+          damage: (params, monster) => calculateDamage(params, 20, params.ATK * ATK_BASE_MULTIPLIER)
         }
       }
     }
