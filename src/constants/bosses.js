@@ -9,9 +9,9 @@ const bosses = {
     description: 'Il re dei merdini, ruolo acquisito grazie al ritrovamento della sua inseparabile corona, si dice che sconfiggendolo si può acquisire la sua corona, e una gran saggezza',
     defeatedSentence: 'I merdini sono finalmente liberi di girovagare per il castello, apri la porta e finalmente aria fresca... ',
     stats: {
-      HP: 10000,
-      ATK: 1522,
-      MAG: 111115,
+      HP: 1000,
+      ATK: 15,
+      MAG: 15,
       DEF: 30
     },
     cooldown: 8000,

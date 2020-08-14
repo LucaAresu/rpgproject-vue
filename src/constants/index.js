@@ -6,6 +6,8 @@ import monsters from './monsters'
 import monsterattacks from './monsterattacks'
 import playerattacks from './playerattacks'
 import bosses from './bosses'
+import debuff from './debuff'
+import talents from './talents'
 
 export default {
   application,
@@ -15,5 +17,7 @@ export default {
   monsters,
   monsterattacks,
   playerattacks,
-  bosses
+  bosses,
+  debuff,
+  talents
 }

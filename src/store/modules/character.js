@@ -23,6 +23,10 @@ const state = {
     DODGE: 0,
     CRIT: 0
 
+  },
+  buff: {},
+  debuff: {
+    ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
   }
 
 }
@@ -42,7 +46,8 @@ const getters = {
   getCurrentMana: state => state.currentMana,
   getMaxMana: state => state.maxMana,
   getExpRequired: state => constants.character.exp.base,
-  getExpThisLevel: state => state.exp % constants.character.exp.base
+  getExpThisLevel: state => state.exp % constants.character.exp.base,
+  getActivePlayerDebuff: state => Object.keys(state.debuff).map(ele => ({ name: ele, value: state.debuff[ele] })).filter(ele => ele.value)
 }
 
 const mutations = {
@@ -69,6 +74,10 @@ const mutations = {
       LUCK: 1
     }
     state.level = 1
+    state.buff = {}
+    state.debuff = {
+      ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
+    }
   },
   'DELETE_CHARACTER' (state) {
     state.created = false
@@ -141,6 +150,15 @@ const mutations = {
   },
   'SPEND_MANA' (state, mana) {
     state.currentMana -= mana
+  },
+  'SET_DEBUFF' (state, debuff) {
+    state.debuff[debuff.name] = debuff.quantity
+  },
+  'ADD_DEBUFF' (state, debuff) {
+    state.debuff[debuff.name] += debuff.quantity
+  },
+  'REMOVE_DEBUFF' (state, debuff) {
+    state.debuff[debuff.name] = 0
   }
 }
 const actions = {
@@ -321,31 +339,71 @@ const actions = {
   playerAction ({ dispatch }, actionType) {
     switch (actionType.action) {
       case 'ATK': dispatch('attackAction', actionType); break
+      case 'MAG': dispatch('attackAction', actionType); break
     }
   },
 
-  attackAction ({ commit, getters, state }, actionType) {
+  handleDebuffInAttackAction ({ dispatch, state }, effects) {
+    if (effects.player) {
+      if (effects.player.debuff) {
+        dispatch('handleDebuff', {
+          ...effects.player.debuff(state),
+          receivedBy: 'PLAYER'
+        })
+      }
+    }
+    if (effects.monster) {
+      if (effects.monster.debuff) {
+        dispatch('handleDebuff', {
+          ...effects.monster.debuff(state),
+          receivedBy: 'MONSTER'
+        })
+      }
+    }
+  },
+
+  attackAction ({ commit, getters, state, dispatch }, actionType) {
     const monster = getters.getMonster
     const attack = constants.playerattacks[actionType.action][actionType.type]
     const effects = attack.effect
-
+    let damageDone
+    let percentualHpDamage = 0
+    let heal = 0
     if (attack.cost.hp) {
-      commit('TAKE_DAMAGE', attack.cost.hp)
+      percentualHpDamage = Math.round(state.maxHp * attack.cost.hp / 100)
+      commit('TAKE_DAMAGE', percentualHpDamage)
     }
     if (attack.cost.mana) {
       commit('SPEND_MANA', attack.cost.mana)
     }
 
-    if (effects.monster.damage) {
-      const damageDone = effects.monster.damage(state.params, monster)
-      if (damageDone >= monster.currentHp * 1) {
-        commit('MONSTER_SET_HEALTH', 0)
-        commit('MONSTER_DEATH')
-      } else {
-        commit('MONSTER_TAKE_DAMAGE', damageDone)
+    dispatch('handleDebuffInAttackAction', effects)
+    if (effects.monster) {
+      if (effects.monster.damage) {
+        damageDone = effects.monster.damage(state.params, state, monster, commit)
+        if (damageDone >= monster.currentHp * 1) {
+          commit('MONSTER_SET_HEALTH', 0)
+          commit('MONSTER_DEATH')
+        } else {
+          commit('MONSTER_TAKE_DAMAGE', damageDone)
+        }
       }
     }
-    // scrivere log
+
+    if (effects.player) {
+      if (effects.player.heal) {
+        heal = effects.player.heal(state.params, state, monster, commit)
+        dispatch('playerHeal', {
+          heal,
+          message: constants.application.messages.heal
+        })
+      }
+    }
+    dispatch('logAddEntry', {
+      type: 'COMBAT',
+      message: attack.log.replace('{MONSTER}', monster.name).replace('{DAMAGE}', damageDone).replace('{COST}', percentualHpDamage).replace('{HEAL}', heal),
+      action: constants.application.logActions.PLAYER_ATTACK
+    })
   }
 }
 

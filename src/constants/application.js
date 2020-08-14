@@ -36,6 +36,12 @@ export default {
     },
     ADD_STAT: {
       color: '#9bc53d'
+    },
+    PLAYER_ATTACK: {
+      color: '#3a86ff'
+    },
+    DEBUFF_DAMAGE: {
+      color: '#3a86ff'
     }
   }
 }

@@ -1,9 +1,22 @@
 <template>
   <div class="combatarea">
     <div class="monster">
+      <div class="personal-info">
+        <div class="buff">
+
+        </div>
         <div class="name">
           {{ monster.name }}
         </div>
+        <div class="debuffs">
+          <div class="debuff" v-for="debuff in monsterDebuff" :key="debuff.name">
+            <img :src="getDebuffImage(debuff.name)" />
+            <div class="caption">
+              {{debuff.value}}
+            </div>
+          </div>
+        </div>
+      </div>
         <div class="healthbar">
           <resource-bar
             height="1rem"
@@ -54,8 +67,21 @@
           :transition="100"
         />
       </div>
-      <div class="name">
-        {{ $store.getters.getName }}
+      <div class="personal-info">
+        <div class="buff">
+
+        </div>
+        <div class="name">
+          {{ $store.getters.getName }}
+        </div>
+        <div class="debuffs">
+          <div class="debuff" v-for="debuff in playerDebuff" :key="debuff.name">
+            <img :src="getDebuffImage(debuff.name)" />
+            <div class="caption">
+              {{debuff.value}}
+            </div>
+          </div>
+        </div>
       </div>
       <button-area @action="handleAction($event)" :canAttack="canAttack" />
     </div>
@@ -78,6 +104,9 @@ export default {
     handleAction (action) {
       this.$store.dispatch('playerAction', action)
       this.playerAtb.current = 0
+    },
+    getDebuffImage (name) {
+      return require('@/assets/debuff/' + constants.debuff[name].icon)
     }
   },
   components: {
@@ -96,6 +125,15 @@ export default {
     },
     monster () {
       return this.$store.getters.getMonster
+    },
+    character () {
+      return this.$store.getters.getCharacter
+    },
+    playerDebuff () {
+      return this.$store.getters.getActivePlayerDebuff
+    },
+    monsterDebuff () {
+      return this.$store.getters.getActiveMonsterDebuff
     }
   },
   created () {
@@ -159,6 +197,31 @@ export default {
 .attack {
   text-align: center;
   font-size: 2rem;
+}
+.personal-info {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+.personal-info > div {
+  width: 33%;
+}
+.debuffs {
+  display: flex;
+  justify-content: flex-end;
+}
+.debuff {
+  display: flex;
+  border: 1px solid black;
+  border-radius: 4px
+}
+.debuff .caption {
+  position: absolute;
+  font-size: 1.2rem;
+}
+.debuff img {
+  width: 50px;
+  height: 50px;
 }
 .name {
   text-align: center;

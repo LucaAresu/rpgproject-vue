@@ -64,6 +64,7 @@ const routes = [
       {
         path: 'talents',
         name: 'Talents',
+        component: () => import('../components/game/character/Talents.vue'),
         beforeEnter (to, from, next) {
           statsRouteValidation(next)
         }

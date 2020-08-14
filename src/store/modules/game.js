@@ -42,8 +42,8 @@ const getters = {
   getPlayerAtb: state => state.atb.player,
   getMonsterAtb: state => state.atb.monster,
   getNextAttack: state => state.monster.nextAttack,
-  getAttackKey: state => state.attackKey
-
+  getAttackKey: state => state.attackKey,
+  getActiveMonsterDebuff: state => Object.keys(state.monster.debuff).map(ele => ({ name: ele, value: state.monster.debuff[ele] })).filter(ele => ele.value)
 }
 
 const mutations = {
@@ -106,6 +106,15 @@ const mutations = {
   },
   'MONSTER_TAKE_DAMAGE' (state, damage) {
     state.monster.currentHp -= damage
+  },
+  'SET_MONSTER_DEBUFF' (state, debuff) {
+    state.monster.debuff[debuff.name] = debuff.quantity
+  },
+  'ADD_MONSTER_DEBUFF' (state, debuff) {
+    state.monster.debuff[debuff.name] += debuff.quantity
+  },
+  'REMOVE_MONSTER_DEBUFF' (state, debuff) {
+    state.monster.debuff[debuff.name] = 0
   },
   'MONSTER_DEATH' (state) {
     state.monster.isDefeated = true
@@ -224,7 +233,10 @@ const actions = {
       ...monster,
       attacks: [...monster.attacks],
       drop: { ...monster.drop },
-      stats: { ...monster.stats }
+      stats: { ...monster.stats },
+      debuff: {
+        ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
+      }
     }
     if (type === 'ELITE') {
       Object.keys(monster.stats).forEach(ele => { monster.stats[ele] *= constants.monsters.paramsBonuses[ele].elite })
@@ -279,6 +291,12 @@ const actions = {
     const currentAttack = constants.monsterattacks[monster.nextAttack]
 
     const effects = currentAttack.attack(monster, player, dispatch)
+    if (effects.monster.debuff) {
+      dispatch('handleDebuff', {
+        ...effects.monster.debuff(monster),
+        receivedBy: 'MONSTER'
+      })
+    }
     if (effects.player.damage) {
       dispatch('playerTakeDamage', {
         ability: currentAttack.label,
@@ -351,10 +369,115 @@ const actions = {
     commit('DELETE_CHARACTER')
     commit('DELETE_MONSTER')
     commit('START_AGAIN')
+  },
+
+  /*
+    malus: {
+      receivedBy: PLAYER - MONSTER
+      type: ADD, SET, REMOVE
+      name: il nome
+      quantity: la quantità
+    }
+  */
+  handleDebuff ({ dispatch }, malus) {
+    const debuff = constants.debuff[malus.name]
+    switch (debuff.type) {
+      case 'STACK': dispatch('handleStackDebuff', { ...malus, values: debuff }); break
+      case 'EFFECT': dispatch('handleEffectDebuff', { ...malus, values: debuff }); break
+    }
+  },
+  /*
+    debuff: {
+      receivedBy: PLAYER - MONSTER
+      type: ADD, SET, REMOVE
+      name: il nome
+      quantity: la quantità
+      values : {} il valore della costante
+  */
+  handleEffectDebuff ({ commit, getters }, debuff) {
+    console.log(debuff)
+    const received = debuff.receivedBy
+    const player = getters.getCharacter
+
+    if (received === 'MONSTER') {
+      commit('ADD_MONSTER_DEBUFF', debuff)
+      const monster = state.monster
+      const limit = debuff.values.limit(player)
+      if (monster.debuff[debuff.name] > limit) {
+        commit('SET_MONSTER_DEBUFF', {
+          name: debuff.name,
+          quantity: limit
+        })
+      }
+    } else {
+      commit('ADD_DEBUFF', debuff)
+      const limit = debuff.values.limit()
+      if (player.debuff[debuff.name] > limit) {
+        commit('SET_DEBUFF', {
+          name: debuff.name,
+          quantity: limit
+        })
+      }
+    }
+  },
+  /*
+    debuff: {
+      receivedBy: PLAYER - MONSTER
+      type: ADD, SET, REMOVE
+      name: il nome
+      quantity: la quantità
+      values : {} il valore della costante
+  */
+  handleStackDebuff ({ dispatch, getters, commit }, debuff) {
+    const received = debuff.receivedBy
+
+    if (received === 'PLAYER') {
+      commit('ADD_DEBUFF', debuff)
+      const player = getters.getCharacter
+      if (player.debuff[debuff.name] >= debuff.values.limit(player)) {
+        const damage = {
+          damage: debuff.values.effect.player.damage(player),
+          monster: '', //  placeholder
+          message: debuff.values.log.player,
+          ability: ''
+        }
+        dispatch('playerTakeDamage', damage)
+        commit('REMOVE_DEBUFF', debuff)
+      }
+    } else {
+      commit('ADD_MONSTER_DEBUFF', debuff)
+      const monster = state.monster
+      if (monster.debuff[debuff.name] >= debuff.values.limit()) {
+        const damage = {
+          damage: debuff.values.effect.monster.damage(monster),
+          monster,
+          message: debuff.values.log.monster
+        }
+        dispatch('debuffDamage', damage)
+        commit('REMOVE_MONSTER_DEBUFF', debuff)
+      }
+    }
+  },
+  /* payload: {
+    damage: il danno subito dal mostro
+    monster: l'oggetto mostro
+    message: il messaggio
+  } */
+
+  debuffDamage ({ commit, dispatch }, payload) {
+    if (payload.damage >= payload.monster.currentHp * 1) {
+      commit('MONSTER_SET_HEALTH', 0)
+      commit('MONSTER_DEATH')
+    } else {
+      commit('MONSTER_TAKE_DAMAGE', payload.damage)
+    }
+    dispatch('logAddEntry', {
+      message: payload.message.replace('{DAMAGE}', payload.damage).replace('{MONSTER}', payload.monster.name),
+      type: 'COMBAT',
+      action: constants.application.logActions.DEBUFF_DAMAGE
+    })
   }
-
 }
-
 export default {
   state,
   getters,

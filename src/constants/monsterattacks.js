@@ -13,7 +13,12 @@ export default {
         damage: Math.round(Math.random() * monster.stats.ATK + monster.stats.MAG)
       },
       monster: {
-        heal: monster.stats.ATK + monster.stats.MAG
+        heal: monster.stats.ATK + monster.stats.MAG,
+        debuff: () => ({
+          type: 'ADD',
+          name: 'PETOFALLITO',
+          quantity: 2
+        })
       }
     })
   },
@@ -28,7 +33,12 @@ export default {
         damage: Math.round(monster.stats.ATK + monster.stats.MAG * SUPERPETO_MULTIPLIER)
       },
       monster: {
-        heal: (monster.stats.ATK + monster.stats.MAG * SUPERPETO_MULTIPLIER)
+        heal: (monster.stats.ATK + monster.stats.MAG * SUPERPETO_MULTIPLIER),
+        debuff: () => ({
+          type: 'ADD',
+          name: 'PETOFALLITO',
+          quantity: 3
+        })
       }
     })
   },
