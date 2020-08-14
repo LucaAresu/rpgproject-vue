@@ -26,6 +26,7 @@ export default {
     base: 10,
     perLevel: 5
   },
+  baseTalents: 15,
   statOrder: [
     'STR', 'MAG', 'AGI', 'VIT', 'LUCK'
   ],

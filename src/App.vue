@@ -35,6 +35,7 @@ export default {
   -khtml-user-select: none;
   -webkit-user-select: none;
   -o-user-select: none;
+  margin-bottom: 5rem;
 }
 .slide-enter-active {
   animation: slide-in 100ms ease-out forwards;

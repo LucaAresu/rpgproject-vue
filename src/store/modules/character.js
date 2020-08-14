@@ -10,6 +10,7 @@ const state = {
   currentMana: 0,
   maxMana: 0,
   statsToAllocate: 0,
+  talentsToAllocate: 0,
   stats: {
     STR: 1,
     MAG: 1,
@@ -27,7 +28,11 @@ const state = {
   buff: {},
   debuff: {
     ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
-  }
+  },
+  talents: Object.keys(constants.talents).map(ele => ({
+    [ele]: Object.keys(constants.talents[ele].talents).map(ele => (
+      { [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
+  })).reduce((acc, ele) => ({ ...acc, ...ele }))
 
 }
 
@@ -38,7 +43,9 @@ const getters = {
   isCharacterCreated: state => state.created,
   getCurrentExp: state => state.exp,
   getStatsToAllocate: state => state.statsToAllocate,
+  getTalentsToAllocate: state => state.talentsToAllocate,
   getStats: state => state.stats,
+  getTalents: state => state.talents,
   getSingleStat: state => stat => state.stats[stat],
   getCharacterLevel: state => state.level,
   getCurrentHp: state => state.currentHp,
@@ -66,6 +73,7 @@ const mutations = {
     state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats)
     state.currentMana = constants.character.paramFormulas.Mana(state.level, state.stats)
     state.maxMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    state.talentsToAllocate = constants.character.baseTalents
     state.stats = {
       STR: 1,
       MAG: 1,
@@ -78,6 +86,10 @@ const mutations = {
     state.debuff = {
       ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
     }
+    state.talents = Object.keys(constants.talents).map(ele => ({
+      [ele]: Object.keys(constants.talents[ele].talents).map(ele => (
+        { [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
+    })).reduce((acc, ele) => ({ ...acc, ...ele }))
   },
   'DELETE_CHARACTER' (state) {
     state.created = false
@@ -118,6 +130,10 @@ const mutations = {
   */
   'ADD_SINGLE_STAT' (state, payload) {
     state.stats[payload.stat] += payload.points
+  },
+  'ADD_TALENT' (state, payload) {
+    state.talents[payload.tree][payload.name]++
+    state.talentsToAllocate--
   },
   'SET_POINTS_TO_ALLOCATE' (state, points) {
     state.statsToAllocate = points
@@ -177,6 +193,15 @@ const actions = {
     commit('ADD_STATS', payload.stats)
     commit('RECALCULATE_PARAMS')
   },
+  /* talent : {
+    tree: il ramo
+    name: il nome
+  }
+   */
+  buyTalent ({ commit }, talent) {
+    commit('ADD_TALENT', talent)
+  },
+
   addExp ({ commit, getters, dispatch }, exp) {
     // uso un ciclo perchè l'assegnazione di exp potrebbe non essere linare, e quindi successivamente non risolvibile con una semplice divisione
     while (exp > 0) {

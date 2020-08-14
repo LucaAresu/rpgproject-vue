@@ -30,10 +30,11 @@
             :current="monsterAtb.current"
             :max="monsterAtb.total"
             :transition="100"
+            v-if="scanLevel >=2"
           />
         </div>
         <transition mode="out-in" name="attacklabel">
-        <div class="attack" :key="attackKey">
+        <div class="attack" :key="attackKey" v-if="scanLevel >= 2">
           [{{nextAttack.label}}]
         </div>
         </transition>
@@ -97,7 +98,8 @@ export default {
       timeout: null,
       n: 0,
       monsterAtb: this.$store.getters.getMonsterAtb,
-      playerAtb: this.$store.getters.getPlayerAtb
+      playerAtb: this.$store.getters.getPlayerAtb,
+      scanLevel: this.$store.getters.getTalents.EXPLORER.SCAN
     }
   },
   methods: {

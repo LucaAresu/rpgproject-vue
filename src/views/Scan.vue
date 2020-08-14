@@ -16,26 +16,26 @@
         <div class="name">Stats</div>
         <div class="row">
           <div class="col">
-            <p>HP: ??/??</p>
-            <p>ATK: ??</p>
-            <p>MAG: ??</p>
+            <p>HP: {{monster.currentHp}}/{{monster.maxHp}}</p>
+            <p>ATK: {{monster.stats.ATK}} <p>
+            <p>MAG: {{monster.stats.DEF}}</p>
           </div>
           <div class="col">
-            <p>DEF: ??</p>
-            <p>Cooldown: ??</p>
-            <p>EXP: ??</p>
+            <p>DEF: {{monster.stats.DEF}}</p>
+            <p>Cooldown: {{(monster.cooldown / 1000).toFixed(1)}}s</p>
           </div>
         </div>
       </div>
-      <div class="attacks">
+      <div class="attacks" v-if="scanLevel >= 3">
         <div class="name">Attacchi</div>
-        <div class="attacklist">
-          Peto
+        <div class="attacklist" v-for="attack in monster.attacks" :key="attack">
+          {{getAttackName(attack)}}
         </div>
       </div>
     </div>
 </template>
 <script>
+import constants from '../constants'
 export default {
   computed: {
     monster () {
@@ -44,7 +44,12 @@ export default {
   },
   data () {
     return {
-      scanLevel: 1
+      scanLevel: this.$store.getters.getTalents.EXPLORER.SCAN
+    }
+  },
+  methods: {
+    getAttackName (attack) {
+      return constants.monsterattacks[attack].label
     }
   }
 }
