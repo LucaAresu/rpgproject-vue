@@ -40,10 +40,12 @@ export default {
       const slotFun = constants.map.rooms[slot.type].click
       this.$store.dispatch(slotFun.name, {
         data: slotFun.data,
-        clicked: slot.clicked
+        clicked: slot.clicked,
+        coords: {
+          col,
+          row
+        }
       })
-      this.$store.dispatch('setClicked', { col, row })
-      this.$store.dispatch('setVisible', { col, row })
     },
     blockClick () {
       this.canClick = false

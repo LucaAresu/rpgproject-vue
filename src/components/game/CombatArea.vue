@@ -104,7 +104,17 @@ export default {
   },
   methods: {
     handleAction (action) {
-      this.$store.dispatch('playerAction', action)
+      if (action === 'DEF') {
+        this.$store.commit('SET_DEFENDING', true)
+      } else if (action === 'FUGA') {
+        if (!this.monster.isBoss) {
+          if (Math.rand() < 10) {
+            this.$store.dispatch('runAway')
+          }
+        }
+      } else {
+        this.$store.dispatch('playerAction', action)
+      }
       this.playerAtb.current = 0
     },
     getDebuffImage (name) {
@@ -136,12 +146,23 @@ export default {
     },
     monsterDebuff () {
       return this.$store.getters.getActiveMonsterDebuff
+    },
+    currentPlayerAtb () {
+      return this.$store.getters.getAtbs.player.current
+    }
+  },
+  watch: {
+    currentPlayerAtb () {
+      if (this.currentPlayerAtb >= this.playerAtb.total) {
+        this.$store.commit('SET_DEFENDING', false)
+      }
     }
   },
   created () {
     const monsterAtb = this.monsterAtb
     const playerAtb = this.playerAtb
     const store = this.$store
+    this.$store.commit('END_PAUSE')
     this.timeout = setInterval(() => {
       const tick = constants.application.atb.tick
       if (playerAtb.current < playerAtb.total) {
@@ -161,6 +182,7 @@ export default {
     }, constants.application.atb.tick)
   },
   destroyed () {
+    this.$store.commit('START_PAUSE')
     clearInterval(this.timeout)
     this.timeout = null
     this.$store.dispatch('setAtb', {

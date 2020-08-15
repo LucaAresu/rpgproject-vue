@@ -9,15 +9,17 @@ const bosses = {
     description: 'Il re dei merdini, ruolo acquisito grazie al ritrovamento della sua inseparabile corona, si dice che sconfiggendolo si può acquisire la sua corona, e una gran saggezza',
     defeatedSentence: 'I merdini sono finalmente liberi di girovagare per il castello, apri la porta e finalmente aria fresca... ',
     stats: {
-      HP: 1000,
+      HP: 10000,
       ATK: 15,
-      MAG: 15,
+      MAG: 0,
       DEF: 30
     },
     cooldown: 8000,
     drop: {
       exp: 500,
-      money: 2000
+      money: 2000,
+      talents: 3,
+      keys: 3
     },
     attacks: ['SUPERPETO', 'PETOSORPRESA'],
     firstAttack: 'PETO'

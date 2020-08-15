@@ -5,7 +5,8 @@
       <div class="placeholder-div-for-animation" v-else />
     </transition>
     <transition  name="pop" mode="out-in">
-    <game-map v-if="!isInCombat" />
+    <game-map v-if="!isInCombat && !shopOpen" />
+    <shop v-else-if="shopOpen" />
     <combat-splash v-else-if="!hasCombatStarted" />
     <combat-area v-else />
     </transition>
@@ -21,6 +22,7 @@ import gameResources from './Resources'
 import combatArea from './CombatArea'
 import combatSplash from './splash/CombatSplash'
 import logArea from './LogArea'
+import shop from './Shop'
 
 export default {
   components: {
@@ -28,9 +30,13 @@ export default {
     gameResources,
     combatArea,
     combatSplash,
-    logArea
+    logArea,
+    shop
   },
   computed: {
+    shopOpen () {
+      return this.$store.getters.isShopOpen
+    },
     hasCombatStarted () {
       return this.$store.getters.hasCombatStarted
     },

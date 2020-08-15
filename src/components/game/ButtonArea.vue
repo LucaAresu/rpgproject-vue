@@ -8,10 +8,10 @@
       <button class="magia" :disabled="selected ==='MAG'" @click="pickArea('MAG')">Magie</button>
       </div>
     <div class="button" >
-      <button class="difesa" :disabled="selected ==='DEF'" @click="pickArea('DEF')">Difesa</button>
+      <button class="difesa" :disabled="!canAttack" @click="$emit('action','DEF')">Difesa</button>
       </div>
     <div class="button">
-      <button class="altro" :disabled="selected === 'ALT'" @click="pickArea('ALT')">Altro</button>
+      <button class="altro" :disabled="!canAttack" @click="$emit('action','FUGA')">Fuga</button>
       </div>
   </div>
   <button-description

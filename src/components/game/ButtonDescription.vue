@@ -30,7 +30,14 @@ export default {
   props: ['selected', 'canAttack'],
   computed: {
     attackList () {
-      return constants.playerattacks[this.selected]
+      return Object.keys(constants.playerattacks[this.selected]).map(ele => constants.playerattacks[this.selected][ele]).filter(ele => {
+        if (!ele.isTalent) {
+          return true
+        }
+        const talentTree = ele.talentLocation.tree
+        const talentName = ele.talentLocation.name
+        return this.character.talents[talentTree][talentName]
+      }).reduce((acc, ele) => ({ ...acc, [ele.key]: { ...ele } }), {})
     },
     character () {
       return this.$store.getters.getCharacter

@@ -1,5 +1,6 @@
 export default {
-  appName: 'AppName',
+  appName: 'Infested Castle',
+  dotMillisecondsTick: 1000,
   atb: {
     tick: 50,
     color: '#ffc857'
@@ -10,7 +11,8 @@ export default {
     takeMapDamage: 'Sono stati ricevuti {DAMAGE} danni da parte di {MONSTER}',
     dodgeMapDamage: 'Prendi una trappola, ma abilmente la schivi',
     heal: 'Ti curi di {HEAL}',
-    mapHeal: 'Ti curi di {HEAL}'
+    mapHeal: 'Ti curi di {HEAL}',
+    noKeysForchest: 'Non hai chiavi a sufficienza per aprire questa chest!'
   },
   logActions: {
     DAMAGE_RECEIVED: {
@@ -18,6 +20,12 @@ export default {
     },
     MONEY: {
       color: '#fcbf49'
+    },
+    KEYS: {
+      color: '#fcbf49'
+    },
+    TALENT: {
+      color: '#b48291'
     },
     EXPERIENCE: {
       color: '#0096c7'
@@ -42,6 +50,15 @@ export default {
     },
     DEBUFF_DAMAGE: {
       color: '#3a86ff'
+    },
+    CHEST: {
+      color: '#ffd166'
+    },
+    ERROR: {
+      color: '#d90429'
+    },
+    SHOP_OPEN: {
+      color: '#bee3db'
     }
   }
 }

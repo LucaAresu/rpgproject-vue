@@ -32,15 +32,19 @@ const ATK_CEFFONE_MULTIPLIER = 1.5
 
 const ATK_TESTATA_MULTIPLIER = 10
 
+const ATK_MORSO_MULTIPLIER = 1
+
 const ATK_DAMAGE_PETO_MULTIPLIER = 0.7
 const MAG_DAMAGE_PETO_MULTIPLIER = 0.2
 const ATK_HEAL_PETO_MULTIPLIER = 2
 const MAG_HEAL_PETO_MULTIPLIER = 1
 
 const MAG_DMG_INTOSSICAZIONE_MULTIPLIER = 2
+
 export default {
   ATK: {
     CEFFONE: {
+      key: 'CEFFONE',
       name: 'Ceffone',
       color: '#f6bd60',
       description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
@@ -56,6 +60,7 @@ export default {
       }
     },
     TESTATA: {
+      key: 'TESTATA',
       name: 'Testata',
       color: '#d62828',
       description: 'Bisogna avere la testa davvero dura per poter pensare di usarla come arma... più forte e più dolorosa di un ceffone.',
@@ -69,11 +74,34 @@ export default {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_TESTATA_MULTIPLIER)
         }
       }
+    },
+
+    MORSO: {
+      key: 'MORSO',
+      name: 'Morso',
+      color: '#edf2f4',
+      description: 'E\' ora di tirar fuori i denti e addentare i nemici, soffriranno di modesti danni subito, e una percentuale della loro vita successivamente',
+      log: 'Addenti {MONSTER}, e non lo molli più, soffre {DAMAGE} danni',
+      cost: {
+        hp: 0,
+        mana: 0
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => calculateDamage(monster, params, 35, params.ATK * ATK_MORSO_MULTIPLIER),
+          debuff: (player) => ({
+            type: 'ADD',
+            name: 'BLEED',
+            quantity: 4
+          })
+        }
+      }
     }
   },
 
   MAG: {
     PETO: {
+      key: 'PETO',
       name: 'Peto',
       color: '#b2967d',
       description: 'Anche se tecnicamente è una magia, si basa sulla forza, ma anche i maghi possono beneficiare della cura ricevuta. Attenzione a farne troppi, potrebbero esserci delle conseguenze...',
@@ -98,6 +126,7 @@ export default {
     },
 
     INTOSSICAZIONE: {
+      key: 'INTOSSICAZIONE',
       name: 'Intossicazione',
       color: '#cc3399',
       description: 'Una magia basilare, i danni non sono eccezionali ma applica INTOSSICATO',
@@ -109,14 +138,121 @@ export default {
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 5, (params.MAG * MAG_DMG_INTOSSICAZIONE_MULTIPLIER)),
-          debuff: (player) => ({
-            type: 'EFFECT',
-            name: 'INTOSSICATO',
-            quantity: 1
-          })
+          debuff: (player) => {
+            let quantity
+            switch (player.talents.TOXICOLOGIST.MASTERDRUG) {
+              case 1: quantity = 2; break
+              case 2: quantity = 3; break
+              case 3: quantity = 5; break
+              default: quantity = 1; break
+            }
+            return {
+              type: 'EFFECT',
+              name: 'INTOSSICATO',
+              quantity
+            }
+          }
+        }
+      }
+    },
+    OVERDOSE: {
+      key: 'OVERDOSE',
+      name: 'Overdose',
+      color: '#ffc6ff',
+      description: 'Consuma stack di INTOSSICATO e fa danni in proporzione',
+      log: 'Scateni un malore in {MONSTER} e subisce {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'TOXICOLOGIST',
+        name: 'OVERDOSE'
+      },
+      cost: {
+        hp: 0,
+        mana: 25
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => {
+            const stacksIntossicato = monster.debuff.INTOSSICATO
+            // talento SHORTARMS
+            const shortArms = player.talents.TOXICOLOGIST.SHORTARMS
+            console.log(shortArms)
+            if (!shortArms) {
+              commit('RESET_MONSTER_DEBUFF', 'INTOSSICATO')
+            } else {
+              let reduction
+              switch (shortArms) {
+                case 1: reduction = 25; break
+                case 2: reduction = 50; break
+                case 3: reduction = 75; break
+              }
+              console.log('int', stacksIntossicato)
+              const quantity = Math.round(stacksIntossicato - (stacksIntossicato * reduction) / 100) * -1
+              commit('ADD_MONSTER_DEBUFF', {
+                name: 'INTOSSICATO',
+                quantity
+              })
+            }
+            return calculateDamage(monster, params, 25, (params.MAG * stacksIntossicato))
+          }
+        }
+      }
+    },
+    TOXICADDICTED: {
+      key: 'TOXICADDICTED',
+      name: 'Asuefatto',
+      color: '#06d6a0',
+      description: 'Consuma stack di INTOSSICATO e cura in proporzione',
+      log: 'Consumi tutta la tossicità di {MONSTER} per curarti di {HEAL}, ti senti meglio',
+      isTalent: true,
+      talentLocation: {
+        tree: 'TOXICOLOGIST',
+        name: 'TOXICADDICTED'
+      },
+      cost: {
+        hp: 0,
+        mana: 5
+      },
+      effect: {
+        player: {
+          heal: (params, player, monster, commit, dispatch) => {
+            const stacksIntossicato = monster.debuff.INTOSSICATO
+            // talento SHORTARMS
+            const shortArms = player.talents.TOXICOLOGIST.SHORTARMS
+            console.log(shortArms)
+            if (!shortArms) {
+              commit('RESET_MONSTER_DEBUFF', 'INTOSSICATO')
+            } else {
+              let reduction
+              switch (shortArms) {
+                case 1: reduction = 25; break
+                case 2: reduction = 50; break
+                case 3: reduction = 75; break
+              }
+              console.log('int', stacksIntossicato)
+              const quantity = Math.round(stacksIntossicato - (stacksIntossicato * reduction) / 100) * -1
+              commit('ADD_MONSTER_DEBUFF', {
+                name: 'INTOSSICATO',
+                quantity
+              })
+            }
+            // talento ADDICTIONPOWER
+            const addiction = player.talents.TOXICOLOGIST.ADDICTIONPOWER
+            if (addiction) {
+              let mana = 0
+              switch (addiction) {
+                case 1: mana = 5; break
+                case 2: mana = 10; break
+                case 3: mana = 20; break
+              }
+              dispatch('healMana', mana)
+            }
+            return Math.round(params.MAG * stacksIntossicato)
+          }
         }
       }
     }
+
   }
 
 }

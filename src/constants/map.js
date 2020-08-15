@@ -1,5 +1,5 @@
 const MIN_MONEY_NORMAL = 20
-const MAX_MONEY_NORMAL = 60
+const MAX_MONEY_NORMAL = 40
 
 const MIN_MONEY_BIG = 50
 const MAX_MONEY_BIG = 150
@@ -17,6 +17,14 @@ const MAX_HEAL_PERCENTAGE = 50
 
 const MIN_STAT_INCREASE = 3
 const MAX_STAT_INCREASE = 8
+
+const MIN_CHEST_MONEY = 200
+const MAX_CHEST_MONEY = 500
+
+const TALENTS_IN_CHEST = 1
+
+const MIN_CHEST_KEY = 2
+const MAX_CHEST_KEY = 4
 
 export default {
   rooms: {
@@ -235,6 +243,102 @@ export default {
           log: 'Ti fermi a riflettere tutto ciò che hai imparato, hai {VALUE} punti stats da mettere liberamente'
         }
       }
+    },
+
+    KEY: {
+      icon: 'key.png',
+      color: '#e5d9f2',
+      click: {
+        name: 'addKey',
+        data: {
+          fun: () => 1,
+          log: 'Trovi una chiave per terra!'
+        }
+      }
+    },
+
+    TALENT: {
+      icon: 'talent.png',
+      color: '#087f8c',
+      click: {
+        name: 'addTalentsInMap',
+        data: {
+          fun: () => 1,
+          log: 'Trovi delle incisioni su un muro, parlano di tecniche di combattimento che potresti sfruttare'
+        }
+      }
+    },
+
+    MIMIC: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#a5243d',
+      click: {
+        name: 'startCombat',
+        data: {
+          fun: () => 'MIMIC',
+          log: 'Sembrava una chest... invece è un Mimic!'
+        }
+      }
+    },
+
+    MONEYCHEST: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#2a9d8f',
+      click: {
+        name: 'openChest',
+        data: {
+          fun: (level) => ({
+            type: 'MONEY',
+            value: Math.round((Math.random() * ((MAX_CHEST_MONEY - MIN_CHEST_MONEY)) + MIN_CHEST_MONEY) * (Math.round(level / 2) + 1))
+          }),
+          log: 'Nella chest trovi... {VALUE} monete!'
+        }
+      }
+    },
+
+    TALENTCHEST: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#087f8c',
+      click: {
+        name: 'openChest',
+        data: {
+          fun: (level) => ({
+            type: 'TALENT',
+            value: TALENTS_IN_CHEST
+          }),
+          log: 'Nella chest trovi... del talento! Ben {VALUE}'
+        }
+      }
+    },
+
+    KEYCHEST: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#e5d9f2',
+      click: {
+        name: 'openChest',
+        data: {
+          fun: (level) => ({
+            type: 'KEY',
+            value: Math.round((Math.random() * ((MAX_CHEST_KEY - MIN_CHEST_KEY)) + MIN_CHEST_KEY))
+          }),
+          log: 'Nella chest trovi... {VALUE} chiavi, che ti serviranno per aprire altre chest, con dentro chiavi, per aprirne altre con dentro chiavi, che conterranno chiavi...'
+        }
+      }
+    },
+
+    SHOP: {
+      icon: 'shop.png',
+      color: '#bee3db',
+      click: {
+        name: 'openShop',
+        data: {
+          log: 'Trovi un negozio, chissà cosa venderà?'
+        }
+      }
     }
 
   },
@@ -250,16 +354,23 @@ export default {
     EXP: 10,
     MEGAEXP: 3,
     TRAP: 15,
-    HEAL: 10,
+    HEAL: 15,
     REFULL: 2,
-    MONSTER: 10,
+    MONSTER: 15,
     ELITE: 2,
-    ADDSTR: 3,
-    ADDMAG: 3,
-    ADDAGI: 3,
-    ADDVIT: 3,
-    ADDLUCK: 3,
-    ADDLIBERO: 1
+    ADDSTR: 4,
+    ADDMAG: 4,
+    ADDAGI: 4,
+    ADDVIT: 4,
+    ADDLUCK: 4,
+    ADDLIBERO: 2,
+    KEY: 5,
+    TALENT: 1,
+    MIMIC: 15,
+    MONEYCHEST: 5,
+    TALENTCHEST: 5,
+    KEYCHEST: 5,
+    SHOP: 55555
 
   }
 }

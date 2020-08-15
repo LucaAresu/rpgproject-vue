@@ -12,8 +12,16 @@
         />
       </div>
     </div>
-    <div class="money">
+    <div class="resources-list">
+      <div class="current-level">
+        <img :src="require('@/assets/resources/castle.png')" /> LV {{$store.getters.getCurrentLevel}}
+      </div>
+      <div class="money">
         <img :src="require('@/assets/resources/money.png')" />  {{ $store.getters.getMoney }}
+      </div>
+      <div class="keys">
+        <img :src="require('@/assets/resources/key.png')" /> {{$store.getters.getKeys}}
+      </div>
     </div>
   </div>
 </template>
@@ -43,7 +51,10 @@ export default {
   display: flex;
   align-items: center;
 }
-
+.resources-list {
+  display: flex;
+  justify-content: space-around;
+}
 img {
   width: 25px;
   height: 25px;

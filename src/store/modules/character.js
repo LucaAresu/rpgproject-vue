@@ -25,6 +25,7 @@ const state = {
     CRIT: 0
 
   },
+  isDefending: 0,
   buff: {},
   debuff: {
     ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }))
@@ -54,7 +55,9 @@ const getters = {
   getMaxMana: state => state.maxMana,
   getExpRequired: state => constants.character.exp.base,
   getExpThisLevel: state => state.exp % constants.character.exp.base,
-  getActivePlayerDebuff: state => Object.keys(state.debuff).map(ele => ({ name: ele, value: state.debuff[ele] })).filter(ele => ele.value)
+  getActivePlayerDebuff: state => Object.keys(state.debuff).map(ele => ({ name: ele, value: state.debuff[ele] })).filter(ele => ele.value),
+  getPlayerDebuff: state => state.debuff,
+  characterIsDefending: state => state.isDefending
 }
 
 const mutations = {
@@ -141,6 +144,9 @@ const mutations = {
   'ADD_POINTS_TO_ALLOCATE' (state, points) {
     state.statsToAllocate += points
   },
+  'ADD_TALENTS_TO_ALLOCATE' (state, points) {
+    state.talentsToAllocate += points
+  },
 
   'ADD_EXP' (state, exp) {
     state.exp += exp
@@ -167,14 +173,26 @@ const mutations = {
   'SPEND_MANA' (state, mana) {
     state.currentMana -= mana
   },
+  'SET_MANA' (state, mana) {
+    state.currentMana = mana
+  },
   'SET_DEBUFF' (state, debuff) {
     state.debuff[debuff.name] = debuff.quantity
   },
   'ADD_DEBUFF' (state, debuff) {
     state.debuff[debuff.name] += debuff.quantity
   },
+  'DEBUFF_DOT_CHARACTER_TICK' (state, debuff) {
+    state.debuff[debuff.name] -= 1
+  },
   'REMOVE_DEBUFF' (state, debuff) {
     state.debuff[debuff.name] = 0
+  },
+  'CLEAR_DEBUFF' (state, debuff) {
+    state.debuff = debuff
+  },
+  'SET_DEFENDING' (state, is) {
+    state.isDefending = is
   }
 }
 const actions = {
@@ -203,6 +221,9 @@ const actions = {
   },
 
   addExp ({ commit, getters, dispatch }, exp) {
+    if (state.talents.EXPLORER.EXPER) {
+      exp *= 2
+    }
     // uso un ciclo perchè l'assegnazione di exp potrebbe non essere linare, e quindi successivamente non risolvibile con una semplice divisione
     while (exp > 0) {
       const expRequiredToNextLevel = getters.getExpRequired
@@ -228,6 +249,8 @@ const actions = {
     if (payload.clicked) {
       return
     }
+    dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
+    dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
     const exp = payload.data.fun()
     const str = payload.data.log.replace('{VALUE}', exp)
     dispatch('logAddEntry', {
@@ -252,6 +275,9 @@ const actions = {
     if (roll <= dodge) {
       dispatch('playerDodged', damage)
       return
+    }
+    if (state.isDefending) {
+      damage.damage = Math.round(damage.damage / 2)
     }
     commit('TAKE_DAMAGE', damage.damage)
     damage.message = damage.message.damage.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
@@ -292,10 +318,11 @@ const actions = {
   },
 
   takeDamageInMap ({ dispatch, state }, payload) {
-    const damage = payload.data.fun(state.maxHp)
-    const message = payload.data.log.replace('{VALUE}', damage)
+    let damage = payload.data.fun(state.maxHp)
     const dodge = state.params.DODGE * 1
     const roll = (Math.random() * 100).toFixed(2) * 1
+    dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
+    dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
     if (roll <= dodge) {
       dispatch('playerDodged', {
         ability: 'Trappola',
@@ -308,6 +335,19 @@ const actions = {
       })
       return
     }
+    // INIZIO TALENTO TRAPPOLA
+    const talent = state.talents.EXPLORER.NOTRAP
+    if (talent) {
+      switch (talent) {
+        case 1: damage -= Math.round((damage * 30) / 100); break // damage : 100 = x : 30
+        case 2: damage -= Math.round((damage * 60) / 100); break
+        case 3: damage = 0; break
+      }
+    }
+
+    // FINE TALENTO TRAPPOLA
+    const message = payload.data.log.replace('{VALUE}', damage)
+
     dispatch('logAddEntry', {
       message,
       type: 'MAP',
@@ -340,10 +380,21 @@ const actions = {
     })
   },
 
+  healMana ({ commit, state }, mana) {
+    const maxMana = state.maxMana
+    if (state.currentMana + mana > maxMana) {
+      commit('SET_MANA', maxMana)
+    } else {
+      commit('SPEND_MANA', mana * -1)
+    }
+  },
+
   takeHealInMap ({ dispatch, state }, payload) {
     if (payload.clicked) {
       return
     }
+    dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
+    dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
     const heal = payload.data.fun(state.maxHp)
     const message = payload.data.log.replace('{VALUE}', heal)
     dispatch('playerHeal', {
@@ -405,7 +456,7 @@ const actions = {
     dispatch('handleDebuffInAttackAction', effects)
     if (effects.monster) {
       if (effects.monster.damage) {
-        damageDone = effects.monster.damage(state.params, state, monster, commit)
+        damageDone = effects.monster.damage(state.params, state, monster, commit, dispatch)
         if (damageDone >= monster.currentHp * 1) {
           commit('MONSTER_SET_HEALTH', 0)
           commit('MONSTER_DEATH')
@@ -417,7 +468,7 @@ const actions = {
 
     if (effects.player) {
       if (effects.player.heal) {
-        heal = effects.player.heal(state.params, state, monster, commit)
+        heal = effects.player.heal(state.params, state, monster, commit, dispatch)
         dispatch('playerHeal', {
           heal,
           message: constants.application.messages.heal
@@ -429,6 +480,10 @@ const actions = {
       message: attack.log.replace('{MONSTER}', monster.name).replace('{DAMAGE}', damageDone).replace('{COST}', percentualHpDamage).replace('{HEAL}', heal),
       action: constants.application.logActions.PLAYER_ATTACK
     })
+  },
+  clearDebuff ({ commit }) {
+    const debuff = { ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele })) }
+    commit('CLEAR_DEBUFF', debuff)
   }
 }
 

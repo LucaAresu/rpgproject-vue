@@ -23,7 +23,7 @@ export default {
       return this.$store.getters.isInCombat
     },
     color () {
-      return this.$store.getters.getStatsToAllocate ? 'red' : 'black'
+      return this.$store.getters.getStatsToAllocate || this.$store.getters.getTalentsToAllocate ? 'red' : 'black'
     }
   }
 }
