@@ -87,56 +87,7 @@ const state = {
     }
   },
   stored: {
-    head: [{
-      id: 27431,
-      slot: 'head',
-      rarity: 0,
-      icon: 'weapon/lamamerdino.png',
-      name: 'Caschetto protettivo',
-      description: 'Un caschetto molto elegante, perchè la sicurezza non è mai troppa!',
-      stats: {
-        STR: 10,
-        MAG: 30,
-        AGI: 30,
-        VIT: 20,
-        LUCK: 30
-      },
-      cost: 2000
-
-    },
-    {
-      id: 214124142241,
-      slot: 'head',
-      rarity: 0,
-      icon: 'weapon/lamamerdino.png',
-      name: 'Caschetto protettivo',
-      description: 'Un caschetto molto elegante, perchè la sicurezza non è mai troppa!',
-      stats: {
-        STR: 210,
-        MAG: 320,
-        AGI: 0,
-        VIT: 220,
-        LUCK: 30
-      },
-      cost: 2000
-    },
-    {
-      id: 217432,
-      slot: 'head',
-      rarity: 0,
-      icon: 'weapon/lamamerdino.png',
-      name: 'Caschetto protettivo',
-      description: 'Un caschetto molto elegante, perchè la sicurezza non è mai troppa!',
-      stats: {
-        STR: 210,
-        MAG: 320,
-        AGI: 0,
-        VIT: 220,
-        LUCK: 25
-      },
-      cost: 2000
-    }
-    ],
+    head: [],
     body: [],
     pants: [],
     feet: [],
