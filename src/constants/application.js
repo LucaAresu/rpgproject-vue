@@ -60,5 +60,10 @@ export default {
     SHOP_OPEN: {
       color: '#bee3db'
     }
+  },
+  shopPrices: {
+    key: 500,
+    talent: 10000,
+    stat: 1000
   }
 }

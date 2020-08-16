@@ -14,6 +14,7 @@ const state = {
   isInCombat: false,
   hasCombatStarted: false,
   shopOpen: false,
+  shop: null,
   monster: null,
   selectedButtonInCombat: 'ATK',
   atb: {
@@ -65,7 +66,8 @@ const getters = {
   getActiveMonsterDebuff: state => Object.keys(state.monster.debuff).map(ele => ({ name: ele, value: state.monster.debuff[ele] })).filter(ele => ele.value),
   getMonsterDebuff: state => state.monster.debuff,
   getTimers: state => state.timers,
-  isShopOpen: state => state.shopOpen
+  isShopOpen: state => state.shopOpen,
+  getShop: state => state.shop
 }
 
 const mutations = {
@@ -189,11 +191,19 @@ const mutations = {
       }
     }
   },
-  'OPEN_SHOP' (state) {
+  'OPEN_SHOP' (state, shop) {
+    state.shop = shop
     state.shopOpen = true
   },
   'CLOSE_SHOP' (state) {
+    state.shop = null
     state.shopOpen = false
+  },
+  'BUY_ITEM' (state, item) {
+    state.shop[item].quantity--
+  },
+  'DOUBLE_COST' (state, item) {
+    state.shop[item].cost *= 2
   }
 }
 
@@ -802,12 +812,44 @@ const actions = {
     }
     dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
     dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
-    commit('OPEN_SHOP')
+    const shop = {
+      key: {
+        label: 'Chiave',
+        quantity: Math.round(Math.random() * 5 + 1),
+        cost: constants.application.shopPrices.key
+      },
+      talent: {
+        label: 'Talento',
+        quantity: 1,
+        cost: constants.application.shopPrices.talent
+      },
+      statPoint: {
+        label: 'Punto Stat',
+        quantity: Math.round(Math.random() * 10 + 1),
+        cost: constants.application.shopPrices.stat
+      }
+    }
+
+    commit('OPEN_SHOP', shop)
     dispatch('logAddEntry', {
       message: payload.data.log,
       type: 'MAP',
       action: constants.application.logActions.SHOP_OPEN
     })
+  },
+
+  closeShop ({ commit }) {
+    commit('CLOSE_SHOP')
+  },
+
+  buyItem ({ commit, state }, item) {
+    switch (item) {
+      case 'key': commit('ADD_KEY', 1); break
+      case 'talent': commit('ADD_TALENTS_TO_ALLOCATE', 1); break
+      case 'statPoint': commit('ADD_POINTS_TO_ALLOCATE', 1); break
+    }
+    commit('ADD_MONEY', state.shop[item].cost * -1)
+    commit('DOUBLE_COST', item)
   }
 }
 export default {

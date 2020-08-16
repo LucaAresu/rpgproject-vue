@@ -9,7 +9,7 @@
           <div class="costo">COSTO</div>
           <div class="vuoto"></div>
         </div>
-        <div class="article" v-for="(item, index) in inventory" :key="index">
+        <div class="article" v-for="(item, index) in shop" :key="index">
         <div class="article-content">
           <div class="item-name" >
             {{item.label}}
@@ -27,49 +27,27 @@
         </div>
       </div>
     </div>
-    <button @click="$store.commit('CLOSE_SHOP')">VAI VIA </button>
+    <button @click="$store.dispatch('closeShop')">VATTENE</button>
   </div>
 </template>
 <script>
 export default {
-  data () {
-    return {
-      inventory: {
-        key: {
-          label: 'Chiave',
-          quantity: Math.round(Math.random() * 5 + 1),
-          cost: 500
-        },
-        talent: {
-          label: 'Talento',
-          quantity: Math.round(Math.random() * 3),
-          cost: 10000
-        },
-        statPoint: {
-          label: 'Punto Stat',
-          quantity: Math.round(Math.random() * 10 + 1),
-          cost: 2000
-        }
-      }
-    }
-  },
   computed: {
     money () {
       return this.$store.getters.getMoney
+    },
+    shop () {
+      return this.$store.getters.getShop
     }
   },
   methods: {
     buy (item) {
-      switch (item) {
-        case 'key': this.$store.commit('ADD_KEY', 1); break
-        case 'talent': this.$store.commit('ADD_TALENTS_TO_ALLOCATE', 1); break
-        case 'statPoint': this.$store.commit('ADD_POINTS_TO_ALLOCATE', 1); break
-      }
-      this.$store.commit('ADD_MONEY', this.inventory[item].cost * -1)
-      this.inventory[item].quantity--
-      if (item === 'key') {
-        this.inventory[item].cost *= 2
-      }
+      this.$store.dispatch('buyItem', item)
+    }
+  },
+  created () {
+    if (!this.shop) {
+      this.$store.dispatch('openShop')
     }
   }
 }
