@@ -39,22 +39,19 @@ export default {
       this.$store.dispatch('endCombat')
     }
   },
+  computed: {
+    dropList () {
+      return this.$store.getters.getDropList
+    }
+  },
+  watch: {
+    dropList () {
+      let i = 1
+      this.dropList.forEach(ele => setTimeout(() => this.list.push(ele), ++i * constants.application.dropViewDelay))
+    }
+  },
   created () {
-    const drops = this.monster.drop
-    let i = 1
-    const list = this.list
-    const dropList = [
-      { name: 'EXP', quantity: drops.exp },
-      { name: 'Soldi', quantity: drops.money }
-    ]
-    if (drops.keys) {
-      dropList.push({ name: 'Chiavi', quantity: drops.keys })
-    }
-    if (drops.talents) {
-      dropList.push({ name: 'Talenti', quantity: drops.talents })
-    }
-
-    dropList.forEach(ele => setTimeout(() => list.push(ele), ++i * constants.application.dropViewDelay))
+    this.$store.dispatch('handleDrops')
   }
 }
 </script>

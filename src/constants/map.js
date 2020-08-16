@@ -343,10 +343,10 @@ export default {
 
   },
   options: {
-    minRows: 3,
+    numberOfRows: 4,
     minColumns: 3,
     rowDivider: 10,
-    columnDivider: 10
+    columnDivider: 5
   },
   rarity: {
     MONEY: 20,
@@ -368,9 +368,9 @@ export default {
     TALENT: 1,
     MIMIC: 15,
     MONEYCHEST: 5,
-    TALENTCHEST: 5,
+    TALENTCHEST: 1,
     KEYCHEST: 5,
-    SHOP: 55555
+    SHOP: 1
 
   }
 }

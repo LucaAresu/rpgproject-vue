@@ -16,6 +16,7 @@ const state = {
   shopOpen: false,
   shop: null,
   monster: null,
+  dropList: null,
   selectedButtonInCombat: 'ATK',
   atb: {
     player: {
@@ -67,7 +68,8 @@ const getters = {
   getMonsterDebuff: state => state.monster.debuff,
   getTimers: state => state.timers,
   isShopOpen: state => state.shopOpen,
-  getShop: state => state.shop
+  getShop: state => state.shop,
+  getDropList: state => state.dropList
 }
 
 const mutations = {
@@ -204,6 +206,12 @@ const mutations = {
   },
   'DOUBLE_COST' (state, item) {
     state.shop[item].cost *= 2
+  },
+  'ADD_DROP_LIST' (state, dropList) {
+    state.dropList = dropList
+  },
+  'CLEAR_DROP_LIST' (state) {
+    state.dropList = null
   }
 }
 
@@ -211,7 +219,7 @@ const actions = {
   createMap ({ commit, state, getters }) {
     commit('NEXT_LEVEL')
     const level = state.level
-    const rows = Math.round(level / constants.map.options.rowDivider) + constants.map.options.minRows
+    const rows = constants.map.options.numberOfRows
     const columns = Math.round(level / constants.map.options.columnDivider) + constants.map.options.minColumns
     const content = []
     const maxMapRarity = Object.keys(constants.map.rarity).reduce((acc, ele) => constants.map.rarity[ele] + acc, 0)
@@ -400,7 +408,7 @@ const actions = {
       monster.isBoss = true
     }
 
-    Object.keys(monster.stats).forEach(ele => { monster.stats[ele] *= constants.monsters.paramsBonuses[ele].level })
+    Object.keys(monster.stats).forEach(ele => { monster.stats[ele] *= (constants.monsters.paramsBonuses[ele].level * state.level) })
     monster.currentHp = monster.stats.HP
     monster.maxHp = monster.stats.HP
     monster.isDefeated = false
@@ -483,32 +491,39 @@ const actions = {
     commit('RESET_ATB', 'monster')
   },
 
-  endCombat ({ state, commit, dispatch }) {
-    dispatch('resetTimers')
-    const monster = state.monster
-    dispatch('handleDrops', monster.drop)
-    commit('CHANGE_COMBAT_STATUS', false)
-    commit('DELETE_MONSTER')
-  },
-
-  runAway ({ commit, dispatch }) {
+  endCombat ({ commit, dispatch, state }) {
     dispatch('resetTimers')
     commit('CHANGE_COMBAT_STATUS', false)
-    commit('DELETE_MONSTER')
-  },
-
-  handleDrops ({ commit, dispatch, state }, drops) {
-    dispatch('addExp', drops.exp)
-    commit('ADD_MONEY', drops.money)
-    if (drops.talents) {
-      commit('ADD_TALENTS_TO_ALLOCATE', drops.talents)
-    }
-    if (drops.keys) {
-      commit('ADD_KEY', drops.keys)
-    }
     if (state.monster.isBoss) {
       dispatch('createMap')
     }
+    commit('DELETE_MONSTER')
+    commit('CLEAR_DROP_LIST')
+  },
+
+  handleDrops ({ commit, dispatch, state }) {
+    const drops = state.monster.drop
+    const dropList = []
+    dispatch('addExp', drops.exp)
+    dropList.push({ name: 'EXP', quantity: drops.exp })
+    commit('ADD_MONEY', drops.money)
+    dropList.push({ name: 'Soldi', quantity: drops.money })
+    if (drops.talents) {
+      if ((typeof drops.talents) === 'object') {
+        if ((Math.random() * 100) < drops.talents.dropRate) {
+          commit('ADD_TALENTS_TO_ALLOCATE', drops.talents.quantity)
+          dropList.push({ name: 'Talenti', quantity: drops.talents.quantity })
+        }
+      } else {
+        commit('ADD_TALENTS_TO_ALLOCATE', drops.talents)
+        dropList.push({ name: 'Talenti', quantity: drops.talents })
+      }
+    }
+    if (drops.keys) {
+      commit('ADD_KEY', drops.keys)
+      dropList.push({ name: 'Chiavi', quantity: drops.keys })
+    }
+    commit('ADD_DROP_LIST', dropList)
   },
   /*
   /* payload: {

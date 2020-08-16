@@ -6,7 +6,7 @@
         <button @click="$emit('remove', stat)" v-show="addedStats[stat]">-</button>
       </div>
       <div class="text">
-        {{stat}} {{ $store.getters.getSingleStat(stat) }} <span v-if="addedStats[stat]">(+{{ addedStats[stat] }})</span>
+        {{stat}} {{ characterStats[stat] }} <span v-if="addedStats[stat]">(+{{ addedStats[stat] }})</span>
       </div>
       <div class="button">
         <button @click="$emit('add', stat)" v-show="pointsToSpend">+</button>
@@ -17,7 +17,12 @@
 </template>
 <script>
 export default {
-  props: ['pointsToSpend', 'statOrder', 'addedStats']
+  props: ['pointsToSpend', 'statOrder', 'addedStats'],
+  computed: {
+    characterStats () {
+      return this.$store.getters.getStats
+    }
+  }
 }
 </script>
 <style scoped>

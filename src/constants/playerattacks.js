@@ -176,7 +176,6 @@ export default {
             const stacksIntossicato = monster.debuff.INTOSSICATO
             // talento SHORTARMS
             const shortArms = player.talents.TOXICOLOGIST.SHORTARMS
-            console.log(shortArms)
             if (!shortArms) {
               commit('RESET_MONSTER_DEBUFF', 'INTOSSICATO')
             } else {
@@ -186,7 +185,6 @@ export default {
                 case 2: reduction = 50; break
                 case 3: reduction = 75; break
               }
-              console.log('int', stacksIntossicato)
               const quantity = Math.round(stacksIntossicato - (stacksIntossicato * reduction) / 100) * -1
               commit('ADD_MONSTER_DEBUFF', {
                 name: 'INTOSSICATO',
@@ -219,7 +217,6 @@ export default {
             const stacksIntossicato = monster.debuff.INTOSSICATO
             // talento SHORTARMS
             const shortArms = player.talents.TOXICOLOGIST.SHORTARMS
-            console.log(shortArms)
             if (!shortArms) {
               commit('RESET_MONSTER_DEBUFF', 'INTOSSICATO')
             } else {
@@ -229,7 +226,6 @@ export default {
                 case 2: reduction = 50; break
                 case 3: reduction = 75; break
               }
-              console.log('int', stacksIntossicato)
               const quantity = Math.round(stacksIntossicato - (stacksIntossicato * reduction) / 100) * -1
               commit('ADD_MONSTER_DEBUFF', {
                 name: 'INTOSSICATO',

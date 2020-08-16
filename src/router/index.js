@@ -88,6 +88,14 @@ const routes = [
     }
   },
   {
+    path: '/equip',
+    name: 'Equip',
+    component: () => import('../views/Equip'),
+    beforeEnter (to, from, next) {
+      statsRouteValidation(next)
+    }
+  },
+  {
     path: '/auth',
     component: () => ({
       component: import('../views/Login.vue'),

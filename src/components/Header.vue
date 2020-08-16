@@ -3,6 +3,7 @@
     <ul>
       <router-link :to="{name: 'Home' }" v-if="logged" tag="li" active-class="active" exact key="home"><a>Home</a></router-link>
       <router-link :to="{name: 'Stats'}" v-if="characterCreated && !isInCombat" tag="li" active-class="active" key="stats"><a :style="{color}">Stats</a></router-link>
+      <router-link :to="{name: 'Equip'}" v-if="characterCreated && !isInCombat" tag="li" active-class="active" key="equip"><a>Equip</a></router-link>
       <router-link :to="{name: 'Scan'}" v-if="isInCombat" tag="li" active-class="active" key="scan"><a>Scan</a></router-link>
       <router-link :to="{name: 'Login' }" v-if="! logged" tag="li" active-class="active" key="login"><a>Login</a></router-link>
       <router-link :to="{name: 'Register'}" v-if="! logged" tag="li" active-class="active" key="register"><a>Registrazione</a></router-link>

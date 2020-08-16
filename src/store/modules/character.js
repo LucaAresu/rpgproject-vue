@@ -45,9 +45,13 @@ const getters = {
   getCurrentExp: state => state.exp,
   getStatsToAllocate: state => state.statsToAllocate,
   getTalentsToAllocate: state => state.talentsToAllocate,
-  getStats: state => state.stats,
+  getStats: (state, getters) => {
+    const currentStats = state.stats
+    const equippedStats = getters.getEquippedStats
+    return Object.keys(currentStats).map(ele => ({ [ele]: currentStats[ele] + equippedStats[ele] })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
+  },
   getTalents: state => state.talents,
-  getSingleStat: state => stat => state.stats[stat],
+  getSingleStat: (state, getters) => stat => getters.getStats[stat],
   getCharacterLevel: state => state.level,
   getCurrentHp: state => state.currentHp,
   getMaxHp: state => state.maxHp,
@@ -97,20 +101,20 @@ const mutations = {
   'DELETE_CHARACTER' (state) {
     state.created = false
   },
-  'RECALCULATE_PARAMS' (state) {
-    state.params.ATK = constants.character.paramFormulas.Attacco(state.level, state.stats)
-    state.params.MAG = constants.character.paramFormulas.Magia(state.level, state.stats)
-    state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, state.stats)
-    state.params.CRIT = constants.character.paramFormulas.Critico(state.level, state.stats)
+  'RECALCULATE_PARAMS' (state, stats) {
+    state.params.ATK = constants.character.paramFormulas.Attacco(state.level, stats)
+    state.params.MAG = constants.character.paramFormulas.Magia(state.level, stats)
+    state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, stats)
+    state.params.CRIT = constants.character.paramFormulas.Critico(state.level, stats)
 
     // calculate new mana
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
-    const newMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    const newMana = constants.character.paramFormulas.Mana(state.level, stats)
     state.maxMana = newMana
     state.currentMana = Math.round(newMana * manaPercentage / 100)
     // calculate new hp
     const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
-    const newHp = constants.character.paramFormulas.HP(state.level, state.stats)
+    const newHp = constants.character.paramFormulas.HP(state.level, stats)
     state.maxHp = newHp
     state.currentHp = Math.round(newHp * hpPercentage / 100)
   },
@@ -154,12 +158,6 @@ const mutations = {
   'ADD_LEVEL' (state) {
     state.level++
     state.statsToAllocate += constants.character.stats.perLevel
-    const newHp = constants.character.paramFormulas.HP(state.level, state.stats)
-    state.currentHp = newHp
-    state.maxHp = newHp
-    const newMana = constants.character.paramFormulas.Mana(state.level, state.stats)
-    state.currentMana = newMana
-    state.maxMana = newMana
   },
   'TAKE_DAMAGE' (state, damage) {
     state.currentHp -= damage
@@ -202,14 +200,18 @@ const actions = {
   setAvatar ({ commit }, avatar) {
     commit('SET_AVATAR', avatar)
   },
-  createCharacter ({ commit }, payload) {
+  createCharacter ({ commit, getters }, payload) {
     commit('CREATE_CHARACTER', payload)
-    commit('RECALCULATE_PARAMS')
+    commit('RECALCULATE_PARAMS', getters.getStats)
   },
-  addStats ({ commit }, payload) {
+  addStats ({ commit, getters }, payload) {
     commit('SET_POINTS_TO_ALLOCATE', payload.points)
     commit('ADD_STATS', payload.stats)
-    commit('RECALCULATE_PARAMS')
+    commit('RECALCULATE_PARAMS', getters.getStats)
+  },
+
+  recalculateParams ({ commit, getters }) {
+    commit('RECALCULATE_PARAMS', getters.getStats)
   },
   /* talent : {
     tree: il ramo
@@ -232,7 +234,7 @@ const actions = {
         exp -= expRequiredToNextLevel
         commit('ADD_EXP', exp)
         commit('ADD_LEVEL')
-        commit('RECALCULATE_PARAMS')
+        commit('RECALCULATE_PARAMS', getters.getStats)
         const levelMessage = constants.character.strings.nextLevel.replace('{LEVEL}', getters.getCharacterLevel)
         dispatch('logAddEntry', {
           message: levelMessage,

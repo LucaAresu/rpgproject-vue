@@ -40,7 +40,10 @@ export default {
       drop: {
         exp: 500,
         money: 3000,
-        talents: 2,
+        talents: {
+          quantity: 1,
+          dropRate: 25
+        },
         keys: 3
       },
       attacks: ['MORSO', 'STRETTALETALE', 'TESTATA', 'SCHIACCIANOCI'],
@@ -67,6 +70,6 @@ export default {
   },
   dropEliteBonuses: {
     exp: 4,
-    money: 4
+    money: 2
   }
 }

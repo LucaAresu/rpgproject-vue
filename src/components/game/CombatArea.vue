@@ -108,8 +108,8 @@ export default {
         this.$store.commit('SET_DEFENDING', true)
       } else if (action === 'FUGA') {
         if (!this.monster.isBoss) {
-          if (Math.rand() < 10) {
-            this.$store.dispatch('runAway')
+          if (Math.rand() < constants.application.runAwayProbability) {
+            this.$store.dispatch('endCombat')
           }
         }
       } else {

@@ -8,6 +8,7 @@ import playerattacks from './playerattacks'
 import bosses from './bosses'
 import debuff from './debuff'
 import talents from './talents'
+import inventory from './inventory'
 
 export default {
   application,
@@ -19,5 +20,6 @@ export default {
   playerattacks,
   bosses,
   debuff,
-  talents
+  talents,
+  inventory
 }

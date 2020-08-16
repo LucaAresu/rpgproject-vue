@@ -88,4 +88,21 @@ img {
   height: 50px;
   transition: 1s;
 }
+@media (min-width: 1200px) {
+  .map {
+    width: 800px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .map .map-col:last-child {
+    align-self: center;
+    justify-self: center;
+    width: 5000px;
+    display: flex;
+    justify-content: space-around;
+  }
+  .map .map-col:last-child > div {
+    width: 100%;
+  }
+}
 </style>

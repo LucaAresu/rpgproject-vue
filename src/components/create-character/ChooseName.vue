@@ -14,6 +14,9 @@ export default {
     return {
       name: ''
     }
+  },
+  created () {
+    this.a = this.$store.getters.getEquippedStats
   }
 }
 </script>

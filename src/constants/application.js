@@ -5,6 +5,7 @@ export default {
     tick: 50,
     color: '#ffc857'
   },
+  runAwayProbability: 10,
   healthbarTransition: '500ms',
   dropViewDelay: 300,
   messages: {
