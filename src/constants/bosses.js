@@ -2,7 +2,7 @@ const bosses = {
   KING_MERDINO: {
     levels: {
       start: 1,
-      end: 1
+      end: 20
     },
     name: 'King Merdino',
     icon: 'boss/kingmerdino.png',
@@ -16,10 +16,17 @@ const bosses = {
     },
     cooldown: 8000,
     drop: {
-      exp: 500,
+      exp: 100,
       money: 2000,
       talents: 3,
-      keys: 3
+      keys: 3,
+      item: {
+        dropRate: 25,
+        info: {
+          rarity: 4,
+          slot: null
+        }
+      }
     },
     attacks: ['SUPERPETO', 'PETOSORPRESA'],
     firstAttack: 'PETO'

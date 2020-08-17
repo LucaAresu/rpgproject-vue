@@ -4,13 +4,13 @@ const MAX_MONEY_NORMAL = 40
 const MIN_MONEY_BIG = 50
 const MAX_MONEY_BIG = 150
 
-const MIN_EXP_NORMAL = 30
-const MAX_EXP_NORMAL = 50
+const MIN_EXP_NORMAL = 10
+const MAX_EXP_NORMAL = 25
 
 const EXP_BIG = 100
 
-const MIN_TRAP_DAMAGE_PERCENTAGE = 10
-const MAX_TRAP_DAMAGE_PERCENTAGE = 30
+const MIN_TRAP_DAMAGE_PERCENTAGE = 8
+const MAX_TRAP_DAMAGE_PERCENTAGE = 14
 
 const MIN_HEAL_PERCENTAGE = 15
 const MAX_HEAL_PERCENTAGE = 50
@@ -23,8 +23,8 @@ const MAX_CHEST_MONEY = 500
 
 const TALENTS_IN_CHEST = 1
 
-const MIN_CHEST_KEY = 2
-const MAX_CHEST_KEY = 4
+const MIN_CHEST_KEY = 1
+const MAX_CHEST_KEY = 3
 
 export default {
   rooms: {
@@ -317,7 +317,7 @@ export default {
     KEYCHEST: {
       icon: 'chest.png',
       visible: 1,
-      color: '#e5d9f2',
+      color: '#84a98c',
       click: {
         name: 'openChest',
         data: {
@@ -326,6 +326,36 @@ export default {
             value: Math.round((Math.random() * ((MAX_CHEST_KEY - MIN_CHEST_KEY)) + MIN_CHEST_KEY))
           }),
           log: 'Nella chest trovi... {VALUE} chiavi, che ti serviranno per aprire altre chest, con dentro chiavi, per aprirne altre con dentro chiavi, che conterranno chiavi...'
+        }
+      }
+    },
+
+    ITEMCHEST: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#e0aaff',
+      click: {
+        name: 'openChest',
+        data: {
+          fun: (level) => ({
+            type: 'ITEM'
+          }),
+          log: 'Nella chest trovi... Un oggetto  nello slot {VALUE}'
+        }
+      }
+    },
+
+    LEGGENDARYITEMCHEST: {
+      icon: 'chest.png',
+      visible: 1,
+      color: '#f9c74f',
+      click: {
+        name: 'openChest',
+        data: {
+          fun: (level) => ({
+            type: 'LEGGENDARYITEM'
+          }),
+          log: 'Nella chest trovi...ME COJONI! Un oggetto LEGGENDARIO nello slot {VALUE}'
         }
       }
     },
@@ -349,28 +379,30 @@ export default {
     columnDivider: 5
   },
   rarity: {
-    MONEY: 20,
-    BIGMONEY: 2,
-    EXP: 10,
-    MEGAEXP: 3,
-    TRAP: 15,
-    HEAL: 15,
-    REFULL: 2,
+    MONEY: 50,
+    BIGMONEY: 20,
+    EXP: 20,
+    MEGAEXP: 6,
+    TRAP: 60,
+    HEAL: 40,
+    REFULL: 4,
     MONSTER: 15,
-    ELITE: 2,
-    ADDSTR: 4,
-    ADDMAG: 4,
-    ADDAGI: 4,
-    ADDVIT: 4,
-    ADDLUCK: 4,
-    ADDLIBERO: 2,
-    KEY: 5,
+    ELITE: 3,
+    ADDSTR: 8,
+    ADDMAG: 8,
+    ADDAGI: 8,
+    ADDVIT: 8,
+    ADDLUCK: 8,
+    ADDLIBERO: 5,
+    KEY: 9,
     TALENT: 1,
-    MIMIC: 15,
-    MONEYCHEST: 5,
+    MIMIC: 25,
+    MONEYCHEST: 20,
     TALENTCHEST: 1,
     KEYCHEST: 5,
-    SHOP: 1
+    ITEMCHEST: 10,
+    LEGGENDARYITEMCHEST: 1,
+    SHOP: 10
 
   }
 }

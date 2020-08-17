@@ -8,7 +8,7 @@ const BASE_MANA = 50
 const MANA_MAG_MULTIPLIER = 10
 
 const BASE_DODGE = 10
-const DODGE_DIVIDER = 5
+const DODGE_DIVIDER = 25
 
 const BASE_HP = 250
 const HP_VIT_MULTIPLIER = 98

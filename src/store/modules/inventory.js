@@ -1,8 +1,6 @@
-/* eslint-disable no-multiple-empty-lines */
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable no-unused-vars */
 import constants from '../../constants'
 const state = {
+  haveNewItems: false,
   equipped: {
     head: {
       id: 2,
@@ -103,7 +101,8 @@ const getters = {
       return Object.keys(acc).map(stat => ({ [stat]: acc[stat] + ele[stat] })).reduce((acc, ele) => ({ ...acc, ...ele }))
     })
   },
-  getStored: state => state.stored
+  getStored: state => state.stored,
+  haveNewItems: state => state.haveNewItems
 }
 
 const mutations = {
@@ -119,6 +118,9 @@ const mutations = {
   },
   'ADD_NEW_ITEM' (state, item) {
     state.stored[item.slot].push(item)
+  },
+  'SET_HAVE_NEW_ITEMS' (state, have) {
+    state.haveNewItems = have
   }
 }
 
@@ -149,7 +151,10 @@ const actions = {
     slot: lo slot,
     rarity: la rarità (numero)
   } */
-  generateRandomItem ({ commit, getters, state }, itemInfo) {
+  generateRandomItem ({ commit, getters, state }, itemInfo = {
+    rarity: null,
+    slot: null
+  }) {
     const statKeys = Object.keys(getters.getStats)
     const currentLevel = getters.getCurrentLevel
     const itemSlots = Object.keys(state.equipped)
@@ -157,7 +162,7 @@ const actions = {
     let selectedSlot = itemInfo.slot
     if (!selectedSlot) {
       selectedSlot = itemSlots[randomSlot]
-    } 
+    }
     // roll per assegnare la rarità dell'oggetto
     const rarityPool = Object.keys(constants.inventory.rarity).reduce((acc, ele) => constants.inventory.rarity[ele] + acc, 0)
     const randomRollForRarity = Math.round(Math.random() * rarityPool)
@@ -190,7 +195,6 @@ const actions = {
       }
       return Math.ceil(stat - damagePercent)
     }
-    let i = 0
     const stats = statKeys.map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
     while (statNumberDivisor) {
       const random = Math.round(Math.random() * (statKeys.length - 1))
@@ -198,24 +202,33 @@ const actions = {
         stats[statKeys[random]] = statOscillation(midStat, constants.inventory.statOscillation)
         statNumberDivisor--
       }
-      i++
     }
     const createdItem = {
-      id: Date.now(),
+      id: Date.now() + '-' + Math.random(),
       name: 'boh',
       icon: 'feet/scarpette.png',
       slot: selectedSlot,
       rarity: chosenRarity,
-      cost: statPool * constants.inventory.statPoolCostMultiplier,
+      cost: Object.keys(stats).map(ele => stats[ele]).reduce((acc, ele) => acc + ele) * constants.inventory.statPoolCostMultiplier,
       stats: { ...stats }
     }
     return createdItem
   },
-
-  createAndAddItem ({ dispatch, commit }) {
-    dispatch('generateRandomItem').then(item => {
+  /* slot : {
+    name: il nome
+    items: la lista degli item
+    */
+  async createAndAddItem ({ dispatch, commit }, slot = {
+    rarity: null,
+    slot: null
+  }) {
+    let generatedItem
+    await dispatch('generateRandomItem', slot).then(item => {
       commit('ADD_NEW_ITEM', item)
+      commit('SET_HAVE_NEW_ITEMS', true)
+      generatedItem = item
     })
+    return generatedItem
   }
 }
 

@@ -10,7 +10,7 @@
           <div class="vuoto"></div>
         </div>
         <div class="article" v-for="(item, index) in shop" :key="index">
-        <div class="article-content">
+        <div class="article-content" v-if="index !== 'items'">
           <div class="item-name" >
             {{item.label}}
           </div>
@@ -24,6 +24,14 @@
             <button @click="buy(index)" :disabled="item.cost > money || !item.quantity"> COMPRA </button>
             </div>
           </div>
+          <div v-else class="item-container">
+            <transition-group name="slide" mode="out-in">
+            <div class="item equip-item" v-for="equip in item" :key="equip.id">
+              <item-view :item="equip" />
+            <button @click="buyEquip(equip)" :disabled="equip.cost > money"> COMPRA </button>
+            </div>
+            </transition-group>
+          </div>
         </div>
       </div>
     </div>
@@ -31,6 +39,8 @@
   </div>
 </template>
 <script>
+import itemView from './equip/ItemView'
+import constants from '../../constants'
 export default {
   computed: {
     money () {
@@ -43,12 +53,20 @@ export default {
   methods: {
     buy (item) {
       this.$store.dispatch('buyItem', item)
+    },
+    buyEquip (item) {
+      item.cost = Math.round(item.cost / constants.inventory.costIncrementInShopMultiplier)
+      this.$store.commit('ADD_NEW_ITEM', item)
+      this.shop.items = this.shop.items.filter(ele => ele.id !== item.id)
     }
   },
   created () {
     if (!this.shop) {
       this.$store.dispatch('openShop')
     }
+  },
+  components: {
+    itemView
   }
 }
 </script>
@@ -112,6 +130,9 @@ button {
 .costo {
   align-self: center;
   margin-right: 1rem;
+}
+.slide-move {
+  transition: 300ms;
 }
 @media(min-width: 800px) {
   .shop {

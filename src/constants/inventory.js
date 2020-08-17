@@ -48,5 +48,6 @@ export default {
   statPoolDivision: 2,
   increaseStatEveryLevel: 5,
   statOscillation: 20,
-  statPoolCostMultiplier: 50
+  statPoolCostMultiplier: 50,
+  costIncrementInShopMultiplier: 2
 }

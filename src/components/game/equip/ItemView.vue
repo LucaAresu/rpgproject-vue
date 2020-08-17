@@ -6,7 +6,7 @@
       <div class="stats">
         <div class="item-slot">Slot: {{item.slot}}</div>
         <div class="rarity">Rarità: <span :style="{color: rarityInfo.color}">{{rarityInfo.name}}</span> </div>
-        <div class="cost">Costo: {{item.cost}}</div>
+        <div class="cost">Costo: {{item.cost.toLocaleString()}}</div>
           <div class="stats-view">
             <div class="stat" v-for="(stat, statName) in item.stats" :key="statName">
               <div class="stat-view" v-if="stat">{{statName}}: {{stat}}</div>

@@ -1,10 +1,10 @@
 <template>
   <div class="choosename">
       <div>
-        <label for="name">Inserisci il nome </label>
-        <input v-model="name">
+        <label for="name" >Inserisci il nome </label>
+        <input v-model="name" @keydown.enter="$emit('complete', name)">
       </div>
-      <button :disabled="!name" @click="$emit('complete',name)">Invia </button>
+      <button :disabled="!name" @click="$emit('complete',name)" >Invia </button>
   </div>
 </template>
 

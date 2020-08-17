@@ -168,6 +168,9 @@ const mutations = {
   'SET_HEALTH' (state, newHealth) {
     state.currentHp = newHealth
   },
+  'REFULL_HP' (state) {
+    state.currentHp = state.maxHp
+  },
   'SPEND_MANA' (state, mana) {
     state.currentMana -= mana
   },
@@ -234,6 +237,7 @@ const actions = {
         exp -= expRequiredToNextLevel
         commit('ADD_EXP', exp)
         commit('ADD_LEVEL')
+        commit('REFULL_HP')
         commit('RECALCULATE_PARAMS', getters.getStats)
         const levelMessage = constants.character.strings.nextLevel.replace('{LEVEL}', getters.getCharacterLevel)
         dispatch('logAddEntry', {

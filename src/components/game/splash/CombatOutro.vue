@@ -12,12 +12,17 @@
         DROPS
       </div>
       <transition-group name="slide">
-        <div class="list" v-for="item in list" :key="item.name">
-          <div class="label">
-            {{item.name}}
+        <div v-for="item in list" :key="item.name">
+          <div v-if="item.name !== 'Item'" class="list">
+            <div class="label">
+              {{item.name}}
+            </div>
+            <div class="quantity">
+              {{item.quantity}}
+            </div>
           </div>
-          <div class="quantity">
-            {{item.quantity}}
+          <div v-else>
+            <item-view :item="item.item" />
           </div>
         </div>
       <button @click="endCombat" key="button">CONTINUA</button>
@@ -26,6 +31,7 @@
 </div>
 </template>
 <script>
+import itemView from '../equip/ItemView'
 import constants from '../../../constants'
 export default {
   data () {
@@ -49,6 +55,9 @@ export default {
       let i = 1
       this.dropList.forEach(ele => setTimeout(() => this.list.push(ele), ++i * constants.application.dropViewDelay))
     }
+  },
+  components: {
+    itemView
   },
   created () {
     this.$store.dispatch('handleDrops')

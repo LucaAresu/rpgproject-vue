@@ -8,6 +8,9 @@ import equip from '../components/game/equip/Equip'
 export default {
   components: {
     equip
+  },
+  created () {
+    this.$store.commit('SET_HAVE_NEW_ITEMS', false)
   }
 }
 </script>

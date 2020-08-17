@@ -16,8 +16,15 @@ export default {
       },
       cooldown: 10000,
       drop: {
-        exp: 50,
-        money: 100
+        exp: 25,
+        money: 100,
+        item: {
+          dropRate: 1,
+          info: {
+            rarity: null,
+            slot: null
+          }
+        }
       },
       attacks: ['PETO', 'SUPERPETO'],
       firstAttack: 'PETO'
@@ -38,13 +45,23 @@ export default {
       },
       cooldown: 5000,
       drop: {
-        exp: 500,
-        money: 3000,
+        exp: 100,
+        money: 1000,
+        keys: {
+          dropRate: 25,
+          quantity: 2
+        },
         talents: {
           quantity: 1,
-          dropRate: 25
+          dropRate: 10
         },
-        keys: 3
+        item: {
+          dropRate: 5,
+          info: {
+            rarity: null,
+            slot: null
+          }
+        }
       },
       attacks: ['MORSO', 'STRETTALETALE', 'TESTATA', 'SCHIACCIANOCI'],
       firstAttack: 'MORSO'

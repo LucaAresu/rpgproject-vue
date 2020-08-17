@@ -501,13 +501,14 @@ const actions = {
     commit('CLEAR_DROP_LIST')
   },
 
-  handleDrops ({ commit, dispatch, state }) {
+  async handleDrops ({ commit, dispatch, state }) {
     const drops = state.monster.drop
     const dropList = []
     dispatch('addExp', drops.exp)
     dropList.push({ name: 'EXP', quantity: drops.exp })
     commit('ADD_MONEY', drops.money)
     dropList.push({ name: 'Soldi', quantity: drops.money })
+
     if (drops.talents) {
       if ((typeof drops.talents) === 'object') {
         if ((Math.random() * 100) < drops.talents.dropRate) {
@@ -519,10 +520,27 @@ const actions = {
         dropList.push({ name: 'Talenti', quantity: drops.talents })
       }
     }
+
     if (drops.keys) {
-      commit('ADD_KEY', drops.keys)
-      dropList.push({ name: 'Chiavi', quantity: drops.keys })
+      if ((typeof drops.keys) === 'object') {
+        if ((Math.random() * 100) < drops.keys.dropRate) {
+          commit('ADD_KEY', drops.keys.quantity)
+          dropList.push({ name: 'Chiavi', quantity: drops.keys.quantity })
+        }
+      } else {
+        commit('ADD_KEY', drops.keys)
+        dropList.push({ name: 'Chiavi', quantity: drops.keys })
+      }
     }
+
+    if (drops.item) {
+      if ((Math.random() * 100) < drops.item.dropRate) {
+        await dispatch('createAndAddItem', drops.item.info).then(item => {
+          dropList.push({ name: 'Item', item })
+        })
+      }
+    }
+
     commit('ADD_DROP_LIST', dropList)
   },
   /*
@@ -812,21 +830,51 @@ const actions = {
       case 'MONEY': commit('ADD_MONEY', data.value); break
       case 'TALENT': commit('ADD_TALENTS_TO_ALLOCATE', data.value); break
       case 'KEY': commit('ADD_KEY', data.value); break
+      case 'ITEM': dispatch('createAndAddItem').then(item => {
+        dispatch('logAddEntry', {
+          message: payload.data.log.replace('{VALUE}', item.slot),
+          type: 'MAP',
+          action: constants.application.logActions.CHEST
+        })
+      }); break
+      case 'LEGGENDARYITEM': dispatch('createAndAddItem', { rarity: 4 }).then(item => {
+        dispatch('logAddEntry', {
+          message: payload.data.log.replace('{VALUE}', item.slot),
+          type: 'MAP',
+          action: constants.application.logActions.CHEST
+        })
+      }); break
     }
-
-    dispatch('logAddEntry', {
-      message: payload.data.log.replace('{VALUE}', data.value),
-      type: 'MAP',
-      action: constants.application.logActions.CHEST
-    })
+    if (data.value) {
+      dispatch('logAddEntry', {
+        message: payload.data.log.replace('{VALUE}', data.value),
+        type: 'MAP',
+        action: constants.application.logActions.CHEST
+      })
+    }
   },
 
-  openShop ({ commit, dispatch }, payload) {
+  async openShop ({ commit, dispatch }, payload) {
     if (payload.clicked) {
       return
     }
     dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
     dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
+    let item1
+    let weapon
+    let leggendaryItem
+    await dispatch('generateRandomItem').then(item => {
+      item.cost *= constants.inventory.costIncrementInShopMultiplier
+      item1 = item
+    })
+    await dispatch('generateRandomItem', { slot: 'weapon' }).then(item => {
+      item.cost *= constants.inventory.costIncrementInShopMultiplier
+      weapon = item
+    })
+    await dispatch('generateRandomItem', { rarity: 4 }).then(item => {
+      item.cost *= constants.inventory.costIncrementInShopMultiplier
+      leggendaryItem = item
+    })
     const shop = {
       key: {
         label: 'Chiave',
@@ -842,7 +890,8 @@ const actions = {
         label: 'Punto Stat',
         quantity: Math.round(Math.random() * 10 + 1),
         cost: constants.application.shopPrices.stat
-      }
+      },
+      items: [item1, weapon, leggendaryItem]
     }
 
     commit('OPEN_SHOP', shop)

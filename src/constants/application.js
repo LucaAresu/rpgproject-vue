@@ -53,6 +53,9 @@ export default {
       color: '#3a86ff'
     },
     CHEST: {
+      color: '#84a98c'
+    },
+    LEGGENDARYCHEST: {
       color: '#ffd166'
     },
     ERROR: {

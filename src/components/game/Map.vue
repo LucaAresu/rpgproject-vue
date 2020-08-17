@@ -94,14 +94,14 @@ img {
     display: flex;
     flex-wrap: wrap;
   }
-  .map .map-col:last-child {
+  .map .map-col:last-child:nth-child(odd) {
     align-self: center;
     justify-self: center;
-    width: 5000px;
     display: flex;
+    width: 100%;
     justify-content: space-around;
   }
-  .map .map-col:last-child > div {
+  .map .map-col:last-child:nth-child(odd) > div {
     width: 100%;
   }
 }

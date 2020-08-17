@@ -95,6 +95,7 @@ export default {
 }
 .body {
   display: flex;
+  flex-direction: column;
 }
 .points {
   text-align: center;
@@ -104,5 +105,10 @@ export default {
 button {
   width: 100%;
   margin: 0;
+}
+@media (min-width: 1000px) {
+  .body {
+    flex-direction: row;
+  }
 }
 </style>
