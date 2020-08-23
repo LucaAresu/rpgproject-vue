@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="create-characters">
     <h1>Crea il tuo personaggio </h1>
       <characters :index="index" @change-char="index = ((total + index + $event)%total)" />
+      <choose-class :selectedClass="selectedClass" @class-chosen="selectedClass = $event" />
     <name @complete="createCharacter($event)" />
   </div>
 </template>
@@ -9,42 +10,40 @@
 import constants from '../../constants'
 import Characters from './Characters'
 import Name from './ChooseName'
-// import axios from 'axios'
-// import { refresh } from '../../private/axioslogin'
+import chooseClass from './ChooseClass'
 
 export default {
   data () {
     return {
       index: 0,
-      total: constants.character.totalCharacters
+      total: constants.character.totalCharacters,
+      selectedClass: 'WARRIOR'
     }
   },
   components: {
     Characters,
-    Name
+    Name,
+    chooseClass
   },
   methods: {
     createCharacter (name) {
       this.$store.dispatch('createCharacter', {
         name,
-        avatar: this.index
+        avatar: this.index,
+        class: this.selectedClass
       })
       this.$store.dispatch('createMap')
     }
   }
-  /* created () {
-    const uid = this.$store.getters.getUserId
-    const idt = this.$store.getters.getToken
-    axios.post(uid + '.json?auth=' + idt, { boh: 'sfsafasi' })
-    refresh.post('', {
-      grant_type: 'refresh_token',
-      refresh_token: this.$store.getters.getRefreshToken
-    })
-  } */
 }
 </script>
 <style scoped>
 h1 {
   text-align: center;
+}
+.create-characters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

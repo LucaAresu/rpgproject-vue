@@ -55,13 +55,14 @@ export default {
       },
       effect: {
         monster: {
-          damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_CEFFONE_MULTIPLIER)
+          damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_CEFFONE_MULTIPLIER) + 100000
         }
       }
     },
     TESTATA: {
       key: 'TESTATA',
       name: 'Testata',
+      isClass: 'WARRIOR',
       color: '#d62828',
       description: 'Bisogna avere la testa davvero dura per poter pensare di usarla come arma... più forte e più dolorosa di un ceffone.',
       log: '{MONSTER} si becca una testata, gli fai {DAMAGE} danni ma ne subisci {COST}',
@@ -80,6 +81,11 @@ export default {
       key: 'MORSO',
       name: 'Morso',
       color: '#edf2f4',
+      isTalent: true,
+      talentLocation: {
+        tree: 'BITER',
+        name: 'MORSO'
+      },
       description: 'E\' ora di tirar fuori i denti e addentare i nemici, soffriranno di modesti danni subito, e una percentuale della loro vita successivamente',
       log: 'Addenti {MONSTER}, e non lo molli più, soffre {DAMAGE} danni',
       cost: {
@@ -131,6 +137,7 @@ export default {
       color: '#cc3399',
       description: 'Una magia basilare, i danni non sono eccezionali ma applica INTOSSICATO',
       log: '{MONSTER} subisce {DAMAGE} danni grazie ad intossicazione',
+      isClass: 'MAGE',
       cost: {
         hp: 0,
         mana: 5

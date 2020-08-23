@@ -28,13 +28,39 @@
       </div>
       <div class="attacks" v-if="scanLevel >= 3">
         <div class="name">Attacchi</div>
-        <div class="attacklist" v-for="attack in monster.attacks" :key="attack">
+        <ul class="attacklist">
+        <li class="attack">Primo attacco
+          <ul>
+            <li> {{getAttackName(monster.firstAttack)}} </li>
+          </ul>
+        </li>
+        <li class="attack" v-for="attack in monster.attacks" :key="attack">
           {{getAttackName(attack)}}
+        </li>
+        </ul>
+      </div>
+      <div class="drops" v-if="scanLevel >= 3">
+        <div class="name">Drops</div>
+        <div class="droplist" v-for="(drop, index) in monster.drop" :key="index">
+          <div class="simple-drop" v-if="index !== 'item' && index !== 'fixedItem'">
+            <div v-if="typeof drop === 'number' || typeof drop ==='string'">{{getDropTranslation(index)}}: {{drop}} </div>
+            <div v-else> {{getDropTranslation(index)}} {{drop.quantity}} ( {{drop.dropRate}}% )</div>
+          </div>
+          <div v-else-if="index ==='item'">
+            <div class="item" v-if="index ==='item'">
+              Una possibilità del {{drop.dropRate}}% di item casuale, con slot {{getDropSlot(monster.drop.item.info.slot)}} e di rarità {{getRarityLabel(monster.drop.item.info.rarity)}}
+            </div>
+          </div>
+          <div v-else>
+            {{drop.info.name}}: {{drop.dropRate}}% (statistiche diverse dalla descrizione)
+            <item-view :item="drop.info" />
+          </div>
         </div>
       </div>
     </div>
 </template>
 <script>
+import itemView from '../components/game/equip/ItemView'
 import constants from '../constants'
 export default {
   computed: {
@@ -50,7 +76,24 @@ export default {
   methods: {
     getAttackName (attack) {
       return constants.monsterattacks[attack].label
+    },
+    getDropTranslation (word) {
+      return constants.application.dropTranslation[word]
+    },
+    getDropSlot (slot) {
+      return slot ? slot.charAt(0).toUpperCase() + slot.slice(1) : 'Casuale'
+    },
+    getRarityLabel (rarity) {
+      console.log(rarity)
+      if (rarity === null) {
+        return 'Casuale'
+      } else {
+        return constants.inventory.rarityInfo[rarity].name
+      }
     }
+  },
+  components: {
+    itemView
   }
 }
 </script>
@@ -96,5 +139,9 @@ export default {
     width: 50%;
     margin: auto;
   }
+}
+ul {
+  margin: 0 1rem;
+  list-style-position: inside;
 }
 </style>

@@ -18,6 +18,7 @@ const state = {
   monster: null,
   dropList: null,
   selectedButtonInCombat: 'ATK',
+  atbMaxEventFired: false,
   atb: {
     player: {
       current: 0,
@@ -73,6 +74,18 @@ const getters = {
 }
 
 const mutations = {
+  'SET_ALL_GAME_DATA' (state, data) {
+    state.atb = { ...state.atb, ...data.atb }
+    state.attackKey = data.attackKey
+    state.hasCombatStarted = data.hasCombatStarted
+    state.isInCombat = data.isInCombat
+    state.isInPause = data.isInPause
+    state.level = data.level
+    state.map = { ...state.map, ...data.map }
+    state.resources = { ...state.resources, ...data.resources }
+    state.selectedButtonInCombat = data.selectedButtonInCombat
+    state.shopOpen = data.shopOpen
+  },
   'CREATE_MAP' (state, payload) {
     state.map.rows = payload.rows
     state.map.columns = payload.columns
@@ -212,11 +225,14 @@ const mutations = {
   },
   'CLEAR_DROP_LIST' (state) {
     state.dropList = null
+  },
+  'SET_ATB_EVENT_MAX_FIRED' (state, hasFired) {
+    state.atbMaxEventFired = hasFired
   }
 }
 
 const actions = {
-  createMap ({ commit, state, getters }) {
+  createMap ({ commit, state, getters, dispatch }) {
     commit('NEXT_LEVEL')
     const level = state.level
     const rows = constants.map.options.numberOfRows
@@ -284,6 +300,7 @@ const actions = {
       columns,
       content
     })
+    dispatch('saveGameData')
   },
 
   setVisible ({ commit }, payload) {
@@ -358,6 +375,7 @@ const actions = {
     if (payload.clicked) {
       return
     }
+    dispatch('eventStartCombat')
     dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
     dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
     const monsterType = payload.data.fun()
@@ -540,7 +558,13 @@ const actions = {
         })
       }
     }
-
+    if (drops.fixedItem) {
+      if ((Math.random() * 100) < drops.fixedItem.dropRate) {
+        await dispatch('createFixedItem', drops.fixedItem.info).then(item => {
+          dropList.push({ name: 'Item', item })
+        })
+      }
+    }
     commit('ADD_DROP_LIST', dropList)
   },
   /*
@@ -914,8 +938,23 @@ const actions = {
     }
     commit('ADD_MONEY', state.shop[item].cost * -1)
     commit('DOUBLE_COST', item)
+  },
+
+  eventStartCombat ({ getters, commit }) {
+    const currentClass = getters.getClass
+    if (currentClass === 'WARRIOR') {
+      commit('SET_MANA', 0)
+    }
+  },
+
+  eventMaxAtb ({ getters, commit }) {
+    if (getters.atbMaxEventFired) {
+      return
+    }
+    commit('SET_ATB_EVENT_MAX_FIRED', true)
   }
 }
+
 export default {
   state,
   getters,

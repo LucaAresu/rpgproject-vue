@@ -2,6 +2,7 @@ import constants from '../../constants'
 const state = {
   created: false,
   name: '',
+  class: '',
   avatar: null,
   level: 1,
   exp: 0,
@@ -40,6 +41,7 @@ const state = {
 const getters = {
   getName: state => state.name,
   getAvatar: state => state.avatar,
+  getClass: state => state.class,
   getCharacter: state => state,
   isCharacterCreated: state => state.created,
   getCurrentExp: state => state.exp,
@@ -65,6 +67,27 @@ const getters = {
 }
 
 const mutations = {
+  'SET_ALL_CHARACTER_DATA' (state, data) {
+    state.created = data.created
+    state.avatar = data.avatar
+    state.class = data.class
+    state.currentHp = data.currentHp
+    state.currentMana = data.currentMana
+    state.debuff = { ...data.debuff }
+    state.exp = data.exp
+    state.isDefending = data.isDefending
+    state.level = data.level
+    state.maxHp = data.maxHp
+    state.maxMana = data.maxMana
+    state.name = data.name
+    state.params = { ...data.params }
+    state.stats = { ...data.stats }
+    state.statsToAllocate = data.statsToAllocate
+    state.talentsToAllocate = data.talentsToAllocate
+  },
+  'SET_CHARACTER_CREATED' (state) {
+    state.created = true
+  },
   'SET_NAME' (state, name) {
     state.name = name
   },
@@ -74,6 +97,7 @@ const mutations = {
   'CREATE_CHARACTER' (state, payload) {
     state.name = payload.name
     state.avatar = payload.avatar
+    state.class = payload.class
     state.created = true
     state.statsToAllocate = constants.character.stats.base + (state.level * constants.character.stats.perLevel)
     state.currentHp = constants.character.paramFormulas.HP(state.level, state.stats)
@@ -283,7 +307,8 @@ const actions = {
       return
     }
     if (state.isDefending) {
-      damage.damage = Math.round(damage.damage / 2)
+      const defenseReduction = constants.classes[state.class].defenseReduction
+      damage.damage = damage.damage - Math.round((damage.damage * defenseReduction) / 100)
     }
     commit('TAKE_DAMAGE', damage.damage)
     damage.message = damage.message.damage.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
@@ -418,7 +443,7 @@ const actions = {
     action: ATK MAG ecc, i bottoni
     type: nome dell'attacco tipo TESTATA
     */
-  playerAction ({ dispatch }, actionType) {
+  playerAction ({ commit, dispatch }, actionType) {
     switch (actionType.action) {
       case 'ATK': dispatch('attackAction', actionType); break
       case 'MAG': dispatch('attackAction', actionType); break

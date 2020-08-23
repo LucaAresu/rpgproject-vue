@@ -106,6 +106,11 @@ const getters = {
 }
 
 const mutations = {
+  'SET_ALL_INVENTORY_DATA' (state, data) {
+    state.equipped = { ...state.equipped, ...data.equipped }
+    state.haveNewItems = data.haveNewItems
+    state.stored = { ...state.stored, ...data.stored }
+  },
   /* slot : {
     name: il nome
     items: la lista degli item
@@ -229,6 +234,17 @@ const actions = {
       generatedItem = item
     })
     return generatedItem
+  },
+
+  createFixedItem  ({ commit, getters }, item) {
+    const statMultiplier = getters.getCurrentLevel * getters.getCurrentLevel
+    item.id = Date.now() + '-' + Math.random()
+    Object.keys(item.stats).forEach(stat => {
+      item.stats[stat] *= statMultiplier
+    })
+    commit('ADD_NEW_ITEM', item)
+    commit('SET_HAVE_NEW_ITEMS', true)
+    return item
   }
 }
 

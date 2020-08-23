@@ -9,6 +9,7 @@ import bosses from './bosses'
 import debuff from './debuff'
 import talents from './talents'
 import inventory from './inventory'
+import classes from './classes'
 
 export default {
   application,
@@ -21,5 +22,6 @@ export default {
   bosses,
   debuff,
   talents,
-  inventory
+  inventory,
+  classes
 }

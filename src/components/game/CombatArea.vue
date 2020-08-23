@@ -108,7 +108,7 @@ export default {
         this.$store.commit('SET_DEFENDING', true)
       } else if (action === 'FUGA') {
         if (!this.monster.isBoss) {
-          if (Math.rand() < constants.application.runAwayProbability) {
+          if (Math.random() * 100 < constants.application.runAwayProbability) {
             this.$store.dispatch('endCombat')
           }
         }
@@ -116,6 +116,7 @@ export default {
         this.$store.dispatch('playerAction', action)
       }
       this.playerAtb.current = 0
+      this.$store.commit('SET_ATB_EVENT_MAX_FIRED', false)
     },
     getDebuffImage (name) {
       return require('@/assets/debuff/' + constants.debuff[name].icon)
@@ -155,6 +156,7 @@ export default {
     currentPlayerAtb () {
       if (this.currentPlayerAtb >= this.playerAtb.total) {
         this.$store.commit('SET_DEFENDING', false)
+        this.$store.dispatch('eventMaxAtb')
       }
     }
   },

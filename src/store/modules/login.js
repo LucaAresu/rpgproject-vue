@@ -1,13 +1,15 @@
 import * as axios from '../../private/axioslogin'
 import constants from '../../constants'
 import router from '../../router/index'
+import axiosSave from 'axios'
 
 const state = {
   logged: false,
   token: null,
   userId: null,
   refreshToken: null,
-  error: null
+  error: null,
+  alreadyLogged: false
 }
 
 const getters = {
@@ -46,6 +48,9 @@ const mutations = {
     state.refreshToken = null
     localStorage.removeItem('refresh_token')
     router.push({ name: 'auth' })
+  },
+  'SET_ALREADY_LOGGED' (state, logged) {
+    state.alreadyLogged = logged
   }
 }
 
@@ -82,6 +87,7 @@ const actions = {
         errorMessage = constants.errors[errorCode] ? constants.errors[errorCode] : errorCode
       }
       commit('LOGIN_ERROR', errorMessage)
+      dispatch('SET_ALREADY_LOGGED', true)
       dispatch('endLoading')
     })
   },
@@ -105,7 +111,7 @@ const actions = {
           expiresIn
         })
         setTimeout(() => dispatch('refreshLogin', refreshToken), (expiresIn - 1) * 1000)
-        dispatch('endLoading')
+        dispatch('loadGameData')
       } else {
         commit('LOGIN_ERROR', constants.errors.RISPOSTA_INVALIDA)
         dispatch('endLoading')
@@ -117,15 +123,15 @@ const actions = {
         errorMessage = constants.errors[errorCode] ? constants.errors[errorCode] : errorCode
       }
       commit('LOGIN_ERROR', errorMessage)
-      dispatch('endLoading')
+      commit('SET_ALREADY_LOGGED', true)
     })
   },
 
-  refreshLogin ({ commit, dispatch }, refreshToken) {
+  refreshLogin ({ commit, dispatch, state }, refreshToken) {
     axios.refresh.post('', {
       grant_type: 'refresh_token',
       refresh_token: refreshToken
-    }).then(resp => {
+    }).then(async resp => {
       const token = resp.data.id_token
       const userId = resp.data.user_id
       const refreshToken = resp.data.refresh_token
@@ -138,8 +144,12 @@ const actions = {
           expiresIn
         })
         setTimeout(() => dispatch('refreshLogin', refreshToken), (expiresIn - 1) * 1000)
+        if (!state.alreadyLogged) {
+          await dispatch('loadGameData')
+        }
+      } else {
+        dispatch('endLoading')
       }
-      dispatch('endLoading')
     }).catch(() => {
       dispatch('endLoading')
     })
@@ -150,6 +160,29 @@ const actions = {
 
   logout ({ commit }) {
     commit('LOGOUT')
+  },
+  saveGameData ({ getters, rootState }) {
+    const saveUrl = getters.getUserId + '/save.json?auth=' + getters.getToken
+    axiosSave.put(saveUrl, rootState)
+  },
+
+  loadGameData ({ commit, getters, dispatch }) {
+    const loadUrl = getters.getUserId + '/save.json?auth=' + getters.getToken
+    axiosSave.get(loadUrl).then(data => {
+      if (data.data) {
+        commit('SET_CHARACTER_CREATED')
+        commit('SET_ALL_CHARACTER_DATA', data.data.character)
+        commit('SET_ALL_GAME_DATA', data.data.game)
+        commit('SET_ALL_INVENTORY_DATA', data.data.inventory)
+        dispatch('saveBackupData')
+      }
+      dispatch('endLoading')
+    }).catch()
+  },
+
+  saveBackupData ({ getters, rootState }) {
+    const saveUrl = getters.getUserId + '/backup.json?auth=' + getters.getToken
+    axiosSave.post(saveUrl, rootState)
   }
 }
 

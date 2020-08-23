@@ -1,7 +1,10 @@
 <template>
 <div class="home">
   <transition name="slide" mode="out-in">
-    <characters v-if="!$store.getters.isCharacterCreated" />
+    <div v-if="$store.getters.isLoading" class="divloader">
+      <pacman-loader />
+    </div>
+    <characters v-else-if="!$store.getters.isCharacterCreated" />
     <game-area v-else />
   </transition>
 </div>
@@ -11,16 +14,26 @@
 // @ is an alias to /src
 import characters from '../components/create-character/CreateCharacters'
 import gameArea from '../components/game/GameArea'
+import pacmanLoader from '../../node_modules/vue-spinner/src/PacmanLoader'
 
 export default {
   name: 'Home',
   components: {
     characters,
-    gameArea
+    gameArea,
+    pacmanLoader
   }
 }
 </script>
 <style scoped>
+.divloader {
+  margin: auto;
+  width: 30%;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #ccc;
+  box-shadow: 1px 1px 1px #ccc;
+}
 .slide-enter-active {
   animation: slide-in 100ms ease-out forwards;
 }

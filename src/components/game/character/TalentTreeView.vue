@@ -84,8 +84,6 @@ export default {
   display: flex;
   flex-direction: column-reverse;
 }
-.talent-tree-view {
-}
 img {
   width: 100px;
   border-radius: 5px;

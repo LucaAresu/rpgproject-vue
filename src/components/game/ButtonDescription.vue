@@ -31,12 +31,17 @@ export default {
   computed: {
     attackList () {
       return Object.keys(constants.playerattacks[this.selected]).map(ele => constants.playerattacks[this.selected][ele]).filter(ele => {
-        if (!ele.isTalent) {
+        if (!ele.isTalent && !ele.isClass) {
           return true
         }
-        const talentTree = ele.talentLocation.tree
-        const talentName = ele.talentLocation.name
-        return this.character.talents[talentTree][talentName]
+        if (ele.isTalent) {
+          const talentTree = ele.talentLocation.tree
+          const talentName = ele.talentLocation.name
+          return this.character.talents[talentTree][talentName]
+        }
+        if (ele.isClass) {
+          return ele.isClass === this.$store.getters.getClass
+        }
       }).reduce((acc, ele) => ({ ...acc, [ele.key]: { ...ele } }), {})
     },
     character () {

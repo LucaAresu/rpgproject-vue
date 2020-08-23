@@ -24,13 +24,16 @@ import constants from '../../../constants'
 export default {
   data () {
     return {
-      selected: '',
-      talents: constants.talents
+      selected: ''
     }
   },
   computed: {
     talentsAvailable () {
       return this.$store.getters.getTalentsToAllocate
+    },
+    talents () {
+      const selectedClass = this.$store.getters.getClass
+      return Object.keys(constants.talents).filter(spec => spec === 'EXPLORER' || constants.talents[spec].class === selectedClass).map(spec => constants.talents[spec]).reduce((acc, ele) => ({ ...acc, [ele.key]: { ...ele } }), {})
     }
   },
   components: {

@@ -16,7 +16,7 @@
       </div>
       <div class="char-info">
         <div class="label">
-          LV {{ $store.getters.getCharacterLevel }}
+          {{className}} LV {{ $store.getters.getCharacterLevel }}
         </div>
         <div class="bar">
           <resource-bar
@@ -43,9 +43,15 @@
 </template>
 <script>
 import resourceBar from '../ui/ResourceBar'
+import constants from '../../constants'
 export default {
   components: {
     resourceBar
+  },
+  data () {
+    return {
+      className: constants.classes[this.$store.getters.getClass].name
+    }
   }
 }
 </script>

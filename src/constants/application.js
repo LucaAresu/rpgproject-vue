@@ -69,5 +69,11 @@ export default {
     key: 500,
     talent: 10000,
     stat: 1000
+  },
+  dropTranslation: {
+    exp: 'EXP',
+    money: 'SOLDI',
+    keys: 'CHIAVI',
+    talents: 'TALENTI'
   }
 }
