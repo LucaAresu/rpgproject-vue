@@ -26,10 +26,10 @@
         </div>
         <div class="barfield">
           <div class="bartext">
-           Mana: {{ currentMana }}/{{ maxMana }}
+           {{resourceName}}: {{ currentMana }}/{{ maxMana }}
           </div>
-          <div class="mana bar">
-            <div class="current" :style="{width: getWidth(currentMana, maxMana)}"></div>
+          <div class="bar">
+           <resource-bar :color="resourceColor" :current="currentMana" :max="maxMana" height="1rem" />
           </div>
         </div>
       </div>
@@ -40,7 +40,15 @@
   </div>
 </template>
 <script>
+import constants from '../../../constants'
+import resourceBar from '../../ui/ResourceBar'
 export default {
+  data () {
+    return {
+      resourceColor: constants.classes[this.$store.getters.getClass].resourceColor,
+      resourceName: constants.classes[this.$store.getters.getClass].resourceName
+    }
+  },
   methods: {
     getWidth (current, max) {
       return ((current * 100) / max).toFixed(0) + '%'
@@ -53,6 +61,9 @@ export default {
     maxMana () { return this.$store.getters.getMaxMana },
     currentExp () { return this.$store.getters.getExpThisLevel },
     maxExp () { return this.$store.getters.getExpRequired }
+  },
+  components: {
+    resourceBar
   }
 }
 </script>

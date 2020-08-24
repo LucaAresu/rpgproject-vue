@@ -56,7 +56,7 @@
         />
         <resource-bar
           height="0.7rem"
-          color="blue"
+          :color="resourceColor"
           :current="$store.getters.getCurrentMana"
           :max="$store.getters.getMaxMana"
         />
@@ -99,7 +99,8 @@ export default {
       n: 0,
       monsterAtb: this.$store.getters.getMonsterAtb,
       playerAtb: this.$store.getters.getPlayerAtb,
-      scanLevel: this.$store.getters.getTalents.EXPLORER.SCAN
+      scanLevel: this.$store.getters.getTalents.EXPLORER.SCAN,
+      resourceColor: constants.classes[this.$store.getters.getClass].resourceColor
     }
   },
   methods: {

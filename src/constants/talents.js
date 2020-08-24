@@ -24,9 +24,9 @@ export default {
         icon: 'addentatore.png',
         maxLevel: 3,
         description: [
-          'Morso ora applica 4 stack di dot',
-          'Morso ora applica 6 stack di dot',
-          'Morso ora applica 10 stack di dot'
+          'Morso ora applica 5 stack di dot',
+          'Morso ora applica 10 stack di dot',
+          'Morso ora applica 20 stack di dot'
         ],
         requires: { name: 'MORSO', level: 1 }
       },
@@ -37,9 +37,9 @@ export default {
         icon: 'biteheal.png',
         maxLevel: 3,
         description: [
-          'Sanguinamento ti cura di una piccola quantità di salute (1%) e ti da 2 Rage',
-          'Sanguinamento ti cura una  quantità di salute (3%) maggiore e ti da 5 Rage',
-          'Sanguinamento ti cura una  quantità di salute (5%) discreta e ti da 10 Rage'
+          'Sanguinamento ti cura di una piccola quantità di salute (1%) e ti da 1 Rage',
+          'Sanguinamento ti cura una  quantità di salute (3%) maggiore e ti da 2 Rage',
+          'Sanguinamento ti cura una  quantità di salute (5%) discreta e ti da 5 Rage'
         ],
         requires: { name: 'MORSO', level: 1 }
       },

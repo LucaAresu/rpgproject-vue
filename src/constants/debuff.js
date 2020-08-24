@@ -1,8 +1,9 @@
+import application from './application'
 const PETOFALLITO_PLAYER_PERCENTDAMAGE = 15
 const PETOFALLITO_MONSTER_PERCENTDAMAGE = 20
 
 const BLEED_PERCENTUAL_PLAYER_DAMAGE = 3
-const BLEED_PERCENTUAL_MONSTER_DAMAGE = 3
+const BLEED_MONSTER_DAMAGE = 2
 
 const BALLBUSTED_PERCENTUAL_PLAYER_DAMAGE = 15
 const BALLBUSTED_PERCENTUAL_MONSTER_DAMAGE = 5
@@ -63,6 +64,14 @@ export default {
     name: 'Sanguinamento',
     icon: 'bleed.png',
     type: 'DOT',
+    tick: player => {
+      switch (player.talents.BITER.SONOPOTENTE) {
+        case 1: return 850
+        case 2: return 600
+        case 3: return 400
+        default: return 1000
+      }
+    },
     limit: player => limit(player, 99),
     log: {
       player: {
@@ -76,7 +85,23 @@ export default {
         damage: player => percentualHealthDamage(player.maxHp, BLEED_PERCENTUAL_PLAYER_DAMAGE)
       },
       monster: {
-        damage: monster => percentualHealthDamage(monster.maxHp, BLEED_PERCENTUAL_MONSTER_DAMAGE)
+        damage: (monster, player) => BLEED_MONSTER_DAMAGE * player.params.ATK,
+        playerHeal: player => {
+          switch (player.talents.BITER.BITEHEAL) {
+            case 1: return 1
+            case 2: return 3
+            case 3: return 5
+            default: return 0
+          }
+        },
+        playerResource: player => {
+          switch (player.talents.BITER.BITEHEAL) {
+            case 1: return 2
+            case 2: return 5
+            case 3: return 10
+            default: return 0
+          }
+        }
       }
     }
   },
@@ -85,7 +110,8 @@ export default {
     name: 'Dolore alle palle',
     icon: 'ballbusted.png',
     type: 'DOT',
-    limit: player => limit(player, 2),
+    tick: player => application.dotMillisecondsTick,
+    limit: player => limit(player, 5),
     log: {
       player: {
         damage: 'Ti butti per terra dal dolore ai gioiellini... ricevi {DAMAGE} danni',

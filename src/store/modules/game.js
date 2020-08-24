@@ -643,15 +643,24 @@ const actions = {
     const player = getters.getCharacter
 
     if (received === 'MONSTER') {
+      let remainingTicks = getters.getMonsterDebuff[debuff.name]
       const monster = getters.getMonster
       const interval = setInterval(() => {
         const isInPause = getters.isInPause
         if (!isInPause) {
-          const damage = debuff.values.effect.monster.damage(monster)
-          dispatch('monsterTakeDamage', damage)
-          commit('DEBUFF_DOT_MONSTER_TICK', debuff)
-          const remainingTicks = getters.getMonsterDebuff[debuff.name]
-          if (!remainingTicks) {
+          const damage = debuff.values.effect.monster.damage(monster, player)
+          if (remainingTicks) {
+            dispatch('monsterTakeDamage', damage)
+            if (debuff.values.effect.monster.playerHeal) {
+              dispatch('playerHealInDot', debuff.values.effect.monster.playerHeal(player))
+            }
+            if (debuff.values.effect.monster.playerResource) {
+              dispatch('healMana', debuff.values.effect.monster.playerResource(player))
+            }
+            commit('DEBUFF_DOT_MONSTER_TICK', debuff)
+          }
+          remainingTicks = getters.getMonsterDebuff[debuff.name]
+          if (remainingTicks <= 0) {
             const interval = getters.getTimers.monster.dot[debuff.name]
             clearInterval(interval)
             commit('SET_DOT_MONSTER_TIMEOUT', {
@@ -660,7 +669,7 @@ const actions = {
             })
           }
         }
-      }, constants.application.dotMillisecondsTick)
+      }, debuff.values.tick(player))
       commit('SET_DOT_MONSTER_TIMEOUT', {
         name: debuff.name,
         interval
@@ -714,7 +723,7 @@ const actions = {
         dispatch('createDotInterval', debuff)
       }
       if (monster.debuff[debuff.name] > limit) {
-        commit('SET_DEBUFF', {
+        commit('SET_MONSTER_DEBUFF', {
           name: debuff.name,
           quantity: limit
         })

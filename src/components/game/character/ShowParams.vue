@@ -1,7 +1,7 @@
 <template>
   <div class="params">
     <div class="param" v-for="param in params" :key="param">
-      {{param}} {{ paramFormulas[param](level, stats) }}  => {{paramFormulas[param](level, combinatedStats)}}
+      {{param}} {{ paramFormulas[param](level, stats, character) }}  => {{paramFormulas[param](level, combinatedStats, character)}}
     </div>
   </div>
 </template>
@@ -13,7 +13,8 @@ export default {
       params: constants.character.paramOrder,
       paramFormulas: constants.character.paramFormulas,
       level: this.$store.getters.getCharacterLevel,
-      stats: ({ ...this.$store.getters.getStats })
+      stats: ({ ...this.$store.getters.getStats }),
+      character: this.$store.getters.getCharacter
     }
   },
   props: ['combinatedStats'],

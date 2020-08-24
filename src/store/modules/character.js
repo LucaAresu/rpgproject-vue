@@ -102,8 +102,9 @@ const mutations = {
     state.statsToAllocate = constants.character.stats.base + (state.level * constants.character.stats.perLevel)
     state.currentHp = constants.character.paramFormulas.HP(state.level, state.stats)
     state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats)
-    state.currentMana = constants.character.paramFormulas.Mana(state.level, state.stats)
-    state.maxMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    const mana = constants.character.paramFormulas.Mana(state.level, state.stats, state)
+    state.currentMana = mana
+    state.maxMana = mana
     state.talentsToAllocate = constants.character.baseTalents
     state.stats = {
       STR: 1,
@@ -133,7 +134,7 @@ const mutations = {
 
     // calculate new mana
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
-    const newMana = constants.character.paramFormulas.Mana(state.level, stats)
+    const newMana = constants.character.paramFormulas.Mana(state.level, stats, state)
     state.maxMana = newMana
     state.currentMana = Math.round(newMana * manaPercentage / 100)
     // calculate new hp
@@ -411,6 +412,18 @@ const actions = {
     })
   },
 
+  playerHealInDot ({ commit, state }, percentageHeal) {
+    if (!percentageHeal) {
+      return
+    }
+    const heal = Math.round((state.maxHp * percentageHeal) / 100)
+    if ((heal + state.currentHp) >= state.maxHp) {
+      commit('SET_HEALTH', state.maxHp)
+    } else {
+      commit('HEAL', heal)
+    }
+  },
+
   healMana ({ commit, state }, mana) {
     const maxMana = state.maxMana
     if (state.currentMana + mana > maxMana) {
@@ -504,6 +517,9 @@ const actions = {
           heal,
           message: constants.application.messages.heal
         })
+      }
+      if (effects.player.resource) {
+        dispatch('healMana', effects.player.resource(state))
       }
     }
     dispatch('logAddEntry', {

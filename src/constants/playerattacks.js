@@ -29,10 +29,16 @@ const calculateDamage = (monster, params, oscillation, damage) => monsterArmorRe
 // aggiungere riduzione del danno in base all'armor
 
 const ATK_CEFFONE_MULTIPLIER = 1.5
+const CEFFONE_RESOURCE_GENERATE = 10
 
 const ATK_TESTATA_MULTIPLIER = 10
+const TESTATA_RESOURCE_GENERATE = 20
 
 const ATK_MORSO_MULTIPLIER = 1
+const MORSO_RESOURCE_GENERATE = 10
+
+const ATK_SCHIACCIANOCI_MULTIPLIER = 10
+const SCHIACCIANOCI_RESOURCE_GENERATE = 20
 
 const ATK_DAMAGE_PETO_MULTIPLIER = 0.7
 const MAG_DAMAGE_PETO_MULTIPLIER = 0.2
@@ -55,7 +61,10 @@ export default {
       },
       effect: {
         monster: {
-          damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_CEFFONE_MULTIPLIER) + 100000
+          damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_CEFFONE_MULTIPLIER)
+        },
+        player: {
+          resource: player => CEFFONE_RESOURCE_GENERATE
         }
       }
     },
@@ -73,6 +82,9 @@ export default {
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_TESTATA_MULTIPLIER)
+        },
+        player: {
+          resource: player => TESTATA_RESOURCE_GENERATE
         }
       }
     },
@@ -95,11 +107,65 @@ export default {
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 35, params.ATK * ATK_MORSO_MULTIPLIER),
-          debuff: (player) => ({
-            type: 'ADD',
-            name: 'BLEED',
-            quantity: 4
-          })
+          debuff: (player) => {
+            let stacks
+            switch (player.talents.BITER.BITEDOT) {
+              case 1: stacks = 5; break
+              case 2: stacks = 10; break
+              case 3: stacks = 20; break
+              default: stacks = 2; break
+            }
+            return {
+              type: 'ADD',
+              name: 'BLEED',
+              quantity: stacks
+            }
+          }
+        },
+        player: {
+          resource: player => MORSO_RESOURCE_GENERATE
+        }
+      }
+    },
+    SCHIACCIANOCI: {
+      key: 'SCHIACCIANOCI',
+      name: 'Schiaccianoci',
+      color: '#efd3d7',
+      isTalent: true,
+      talentLocation: {
+        tree: 'BITER',
+        name: 'SCHIACCIANOCI'
+      },
+      description: 'Colpo che può essere davvero letale, dai danni ridotti in base a circostanze... esterne, Azzera la Rage, se si fa quando si ha la rabbia al massimo applica un dot',
+      log: 'Tiri una padellata alle noccioline di {MONSTER}, gli fai {DAMAGE} danni',
+      cost: {
+        hp: 0,
+        mana: 0
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => {
+            commit('SET_MANA', 0)
+            return calculateDamage(monster, params, 70, params.ATK * ATK_SCHIACCIANOCI_MULTIPLIER)
+          },
+          debuff: (player) => {
+            let stacks = 0
+            if (player.currentMana === player.maxMana) {
+              switch (player.talents.BITER.SONOPOTENTE) {
+                case 2: stacks = 3; break
+                case 3: stacks = 4; break
+                default: stacks = 2; break
+              }
+            }
+            return {
+              type: 'ADD',
+              name: 'BALLBUSTED',
+              quantity: stacks
+            }
+          }
+        },
+        player: {
+          resource: player => SCHIACCIANOCI_RESOURCE_GENERATE
         }
       }
     }
