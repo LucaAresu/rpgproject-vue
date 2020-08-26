@@ -102,7 +102,7 @@ export default {
       log: 'Addenti {MONSTER}, e non lo molli più, soffre {DAMAGE} danni',
       cost: {
         hp: 0,
-        mana: 0
+        mana: 20
       },
       effect: {
         monster: {

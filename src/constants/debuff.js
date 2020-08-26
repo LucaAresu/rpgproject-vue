@@ -3,7 +3,10 @@ const PETOFALLITO_PLAYER_PERCENTDAMAGE = 15
 const PETOFALLITO_MONSTER_PERCENTDAMAGE = 20
 
 const BLEED_PERCENTUAL_PLAYER_DAMAGE = 3
-const BLEED_MONSTER_DAMAGE = 2
+const BLEED_MONSTER_DAMAGE = 1.34
+const BLEED_HEAL_BITEHEAL_ATK1 = 0.50
+const BLEED_HEAL_BITEHEAL_ATK2 = 0.75
+const BLEED_HEAL_BITEHEAL_ATK3 = 1.05
 
 const BALLBUSTED_PERCENTUAL_PLAYER_DAMAGE = 15
 const BALLBUSTED_PERCENTUAL_MONSTER_DAMAGE = 5
@@ -67,8 +70,8 @@ export default {
     tick: player => {
       switch (player.talents.BITER.SONOPOTENTE) {
         case 1: return 850
-        case 2: return 600
-        case 3: return 400
+        case 2: return 700
+        case 3: return 500
         default: return 1000
       }
     },
@@ -85,12 +88,12 @@ export default {
         damage: player => percentualHealthDamage(player.maxHp, BLEED_PERCENTUAL_PLAYER_DAMAGE)
       },
       monster: {
-        damage: (monster, player) => BLEED_MONSTER_DAMAGE * player.params.ATK,
+        damage: (monster, player) => Math.round(BLEED_MONSTER_DAMAGE * player.params.ATK),
         playerHeal: player => {
           switch (player.talents.BITER.BITEHEAL) {
-            case 1: return 1
-            case 2: return 3
-            case 3: return 5
+            case 1: return BLEED_HEAL_BITEHEAL_ATK1 * player.params.ATK
+            case 2: return BLEED_HEAL_BITEHEAL_ATK2 * player.params.ATK
+            case 3: return BLEED_HEAL_BITEHEAL_ATK3 * player.params.ATK
             default: return 0
           }
         },

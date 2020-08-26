@@ -11,7 +11,7 @@ const bosses = {
     stats: {
       HP: 10000,
       ATK: 15,
-      MAG: 0,
+      MAG: 15,
       DEF: 30
     },
     cooldown: 8000,

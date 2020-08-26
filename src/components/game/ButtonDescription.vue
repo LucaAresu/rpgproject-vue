@@ -16,7 +16,7 @@
       </div>
         <div class="cost" v-if="hoverAttack.cost.hp || hoverAttack.cost.mana" >Costo
           <span class="hp-cost" v-if="hoverAttack.cost.hp"> {{hoverAttack.cost.hp}}% HP </span>
-          <span class="mana-cost" v-if="hoverAttack.cost.mana"> {{hoverAttack.cost.mana}} Mana </span>
+          <span class="mana-cost" v-if="hoverAttack.cost.mana" :style="{color: resourceColor}"> {{hoverAttack.cost.mana}} {{resourceName}} </span>
         </div>
       <div class="description">
         {{hoverAttack.description}}
@@ -51,7 +51,9 @@ export default {
   data () {
     return {
       hoverAttack: null,
-      disabledBgColor: '#ccc'
+      disabledBgColor: '#ccc',
+      resourceName: constants.classes[this.$store.getters.getClass].resourceName,
+      resourceColor: constants.classes[this.$store.getters.getClass].resourceColor
     }
   },
   methods: {
@@ -73,7 +75,15 @@ export default {
 <style scoped>
 .buttondescription {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
+}
+.attackarea {
+  display: flex;
+  flex-wrap: wrap;
+}
+.attackarea > div {
+  margin: 0.2rem 0.5rem;
 }
 button {
   padding: 0.5rem 2rem;
@@ -101,9 +111,6 @@ button:hover:disabled {
 }
 .hp-cost {
   color: red;
-}
-.mana-cost {
-  color: blue;
 }
 .attackdescription .description {
   border: 1px solid #ccc;

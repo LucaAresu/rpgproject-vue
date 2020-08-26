@@ -956,11 +956,12 @@ const actions = {
     }
   },
 
-  eventMaxAtb ({ getters, commit }) {
+  eventMaxAtb ({ getters, commit, dispatch }) {
     if (getters.atbMaxEventFired) {
       return
     }
     commit('SET_ATB_EVENT_MAX_FIRED', true)
+    dispatch('healEnergyInAssassinSwiftnessTalent')
   }
 }
 

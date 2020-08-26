@@ -100,8 +100,8 @@ const mutations = {
     state.class = payload.class
     state.created = true
     state.statsToAllocate = constants.character.stats.base + (state.level * constants.character.stats.perLevel)
-    state.currentHp = constants.character.paramFormulas.HP(state.level, state.stats)
-    state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats)
+    state.currentHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
+    state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
     const mana = constants.character.paramFormulas.Mana(state.level, state.stats, state)
     state.currentMana = mana
     state.maxMana = mana
@@ -127,10 +127,10 @@ const mutations = {
     state.created = false
   },
   'RECALCULATE_PARAMS' (state, stats) {
-    state.params.ATK = constants.character.paramFormulas.Attacco(state.level, stats)
-    state.params.MAG = constants.character.paramFormulas.Magia(state.level, stats)
-    state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, stats)
-    state.params.CRIT = constants.character.paramFormulas.Critico(state.level, stats)
+    state.params.ATK = constants.character.paramFormulas.Attacco(state.level, stats, state)
+    state.params.MAG = constants.character.paramFormulas.Magia(state.level, stats, state)
+    state.params.DODGE = constants.character.paramFormulas.Schivata(state.level, stats, state)
+    state.params.CRIT = constants.character.paramFormulas.Critico(state.level, stats, state)
 
     // calculate new mana
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
@@ -139,7 +139,7 @@ const mutations = {
     state.currentMana = Math.round(newMana * manaPercentage / 100)
     // calculate new hp
     const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
-    const newHp = constants.character.paramFormulas.HP(state.level, stats)
+    const newHp = constants.character.paramFormulas.HP(state.level, stats, state)
     state.maxHp = newHp
     state.currentHp = Math.round(newHp * hpPercentage / 100)
   },
@@ -147,12 +147,12 @@ const mutations = {
     state.stats = Object.keys(state.stats).map(ele => ({ [ele]: state.stats[ele] + newstats[ele] })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
     // calculate new mana
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
-    const newMana = constants.character.paramFormulas.Mana(state.level, state.stats)
+    const newMana = constants.character.paramFormulas.Mana(state.level, state.stats, state)
     state.maxMana = newMana
     state.currentMana = Math.round(newMana * manaPercentage / 100)
     // calculate new hp
     const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
-    const newHp = constants.character.paramFormulas.HP(state.level, state.stats)
+    const newHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
     state.maxHp = newHp
     state.currentHp = Math.round(newHp * hpPercentage / 100)
   },
@@ -246,8 +246,9 @@ const actions = {
     name: il nome
   }
    */
-  buyTalent ({ commit }, talent) {
+  buyTalent ({ commit, dispatch }, talent) {
     commit('ADD_TALENT', talent)
+    dispatch('recalculateParams')
   },
 
   addExp ({ commit, getters, dispatch }, exp) {
@@ -412,11 +413,10 @@ const actions = {
     })
   },
 
-  playerHealInDot ({ commit, state }, percentageHeal) {
-    if (!percentageHeal) {
+  playerHealInDot ({ commit, state }, heal) {
+    if (!heal) {
       return
     }
-    const heal = Math.round((state.maxHp * percentageHeal) / 100)
     if ((heal + state.currentHp) >= state.maxHp) {
       commit('SET_HEALTH', state.maxHp)
     } else {
@@ -430,6 +430,22 @@ const actions = {
       commit('SET_MANA', maxMana)
     } else {
       commit('SPEND_MANA', mana * -1)
+    }
+  },
+
+  healEnergyInAssassinSwiftnessTalent ({ state, dispatch }) {
+    const swiftnessLevel = state.talents.ASSASSIN.SWIFTNESS
+    if (!swiftnessLevel) {
+      return
+    }
+    let heal = 0
+    switch (swiftnessLevel) {
+      case 1: heal = 5; break
+      case 2: heal = 10; break
+      case 3: heal = 20; break
+    }
+    if (heal) {
+      dispatch('healMana', heal)
     }
   },
 
