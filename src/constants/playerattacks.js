@@ -44,6 +44,12 @@ const ATK_INTOSSICAZIONE_MULTIPLIER = 3
 
 const ATK_BACKSTAB_MULTIPLIER = 15
 
+const ATK_BERSERK_MULTIPLIER_PLEB = 3
+const ATK_HEAL_BERSERK_PLEB = 2
+
+const ATK_BERSERK_MULTIPLIER_BUFF = 8
+const ATK_HEAL_BERSERK_BUFF = 5
+
 const ATK_DAMAGE_PETO_MULTIPLIER = 0.7
 const MAG_DAMAGE_PETO_MULTIPLIER = 0.2
 const ATK_HEAL_PETO_MULTIPLIER = 2
@@ -59,10 +65,10 @@ export default {
       color: '#f6bd60',
       description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
       log: 'Tiri un ceffone fortissimo a {MONSTER} e riceve {DAMAGE} danni',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 0
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_CEFFONE_MULTIPLIER)
@@ -79,10 +85,10 @@ export default {
       color: '#d62828',
       description: 'Bisogna avere la testa davvero dura per poter pensare di usarla come arma... più forte e più dolorosa di un ceffone.',
       log: '{MONSTER} si becca una testata, gli fai {DAMAGE} danni ma ne subisci {COST}',
-      cost: {
+      cost: player => ({
         hp: 10,
         mana: 0
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 20, params.ATK * ATK_TESTATA_MULTIPLIER)
@@ -104,10 +110,10 @@ export default {
       },
       description: 'E\' ora di tirar fuori i denti e addentare i nemici, soffriranno di modesti danni subito, e una percentuale della loro vita successivamente',
       log: 'Addenti {MONSTER}, e non lo molli più, soffre {DAMAGE} danni',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 20
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 35, params.ATK * ATK_MORSO_MULTIPLIER),
@@ -142,10 +148,10 @@ export default {
       },
       description: 'Colpo che può essere davvero letale, dai danni ridotti in base a circostanze... esterne, Azzera la Rage, se si fa quando si ha la rabbia al massimo applica un dot',
       log: 'Tiri una padellata alle noccioline di {MONSTER}, gli fai {DAMAGE} danni',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 0
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => {
@@ -185,10 +191,10 @@ export default {
       },
       description: 'Colpo dalla media potenza. Avvelena',
       log: 'Approfitti della distrazione di {MONSTER} per intossicarlo, gli fai {DAMAGE} danni',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 20
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 75, params.ATK * ATK_INTOSSICAZIONE_MULTIPLIER),
@@ -211,10 +217,10 @@ export default {
       },
       description: 'Colpo di elevata potenza. Avvelena e applica distrutto. Ouch',
       log: 'Sfrutti l\'apertura lasciata da {MONSTER} e lo attacchi alle spalle facendo {DAMAGE} danno',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 50
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 75, params.ATK * ATK_BACKSTAB_MULTIPLIER),
@@ -223,6 +229,52 @@ export default {
             name: 'DEADLYPOISON',
             quantity: 5
           })
+        }
+      }
+    },
+
+    BERSERK: {
+      key: 'BERSERK',
+      name: 'Berserk',
+      color: '#6930c3',
+      description: 'Beh è ora di picchiare in autorun... una volta andato in berserk o muori tu o il mostro',
+      log: 'Carichi {MONSTER} ciecamente e riceve {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'TANK',
+        name: 'BERSERK'
+      },
+      cost: player => {
+        let hp = 50
+        if (player.isInBerserk) {
+          hp = 0
+        }
+        return {
+          hp,
+          mana: 0
+        }
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            dispatch('berserkTime')
+            dispatch('healMana', 10)
+            if (player.talents.TANK.BERSERK >= 3) {
+              return calculateDamage(monster, params, 90, params.ATK * ATK_BERSERK_MULTIPLIER_BUFF)
+            }
+            return calculateDamage(monster, params, 90, params.ATK * ATK_BERSERK_MULTIPLIER_PLEB)
+          }
+        },
+        player: {
+          heal: (params, player) => {
+            const berserkLevel = player.talents.TANK.BERSERK
+            switch (berserkLevel) {
+              case 1: return 0
+              case 2: return params.ATK * ATK_HEAL_BERSERK_PLEB
+              case 3: return params.ATK * ATK_HEAL_BERSERK_BUFF
+              default: return 0
+            }
+          }
         }
       }
     }
@@ -235,10 +287,10 @@ export default {
       color: '#b2967d',
       description: 'Anche se tecnicamente è una magia, si basa sulla forza, ma anche i maghi possono beneficiare della cura ricevuta. Attenzione a farne troppi, potrebbero esserci delle conseguenze...',
       log: 'Ti concentri e tiri un peto più forte che puoi. {MONSTER} subisce {DAMAGE} danni e ti curi di {HEAL}',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 5
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 30, (params.ATK * ATK_DAMAGE_PETO_MULTIPLIER) + (params.MAG * MAG_DAMAGE_PETO_MULTIPLIER))
@@ -261,10 +313,10 @@ export default {
       description: 'Una magia basilare, i danni non sono eccezionali ma applica INTOSSICATO',
       log: '{MONSTER} subisce {DAMAGE} danni grazie ad intossicazione',
       isClass: 'MAGE',
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 5
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => calculateDamage(monster, params, 5, (params.MAG * MAG_DMG_INTOSSICAZIONE_MULTIPLIER)),
@@ -296,10 +348,10 @@ export default {
         tree: 'TOXICOLOGIST',
         name: 'OVERDOSE'
       },
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 25
-      },
+      }),
       effect: {
         monster: {
           damage: (params, player, monster, commit) => {
@@ -337,10 +389,10 @@ export default {
         tree: 'TOXICOLOGIST',
         name: 'TOXICADDICTED'
       },
-      cost: {
+      cost: player => ({
         hp: 0,
         mana: 5
-      },
+      }),
       effect: {
         player: {
           heal: (params, player, monster, commit, dispatch) => {

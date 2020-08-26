@@ -375,7 +375,9 @@ const actions = {
     if (payload.clicked) {
       return
     }
+    commit('SET_DEFENDING', false)
     dispatch('eventStartCombat')
+    commit('SET_BERSERK', false)
     dispatch('setClicked', { col: payload.coords.col, row: payload.coords.row })
     dispatch('setVisible', { col: payload.coords.col, row: payload.coords.row })
     const monsterType = payload.data.fun()
@@ -515,6 +517,8 @@ const actions = {
     if (state.monster.isBoss) {
       dispatch('createMap')
     }
+    commit('SET_DEFENDING', false)
+    commit('SET_BERSERK', false)
     commit('DELETE_MONSTER')
     commit('CLEAR_DROP_LIST')
   },
@@ -958,11 +962,12 @@ const actions = {
     commit('DOUBLE_COST', item)
   },
 
-  eventStartCombat ({ getters, commit }) {
+  eventStartCombat ({ getters, commit, dispatch }) {
     const currentClass = getters.getClass
     if (currentClass === 'WARRIOR') {
       commit('SET_MANA', 0)
     }
+    dispatch('autoDefTankTalent')
   },
 
   eventMaxAtb ({ getters, commit, dispatch }) {
@@ -972,6 +977,8 @@ const actions = {
     commit('SET_ATB_EVENT_MAX_FIRED', true)
     dispatch('healEnergyInAssassinSwiftnessTalent')
     dispatch('autoDefenseInTankBufferingTalent')
+    dispatch('berserkTankTalent')
+    dispatch('autoDefTankTalent')
   },
 
   eventPlayerDodged ({ dispatch, getters }) {
@@ -988,6 +995,7 @@ const actions = {
 
   eventActionDone ({ dispatch, commit }) {
     commit('SET_DEFENDING', false)
+    dispatch('autoDefTankTalent')
   },
 
   eventMaxResource ({ dispatch }) {

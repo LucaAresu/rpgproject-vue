@@ -5,6 +5,7 @@ const state = {
   class: '',
   avatar: null,
   level: 1,
+  isInBerserk: false,
   exp: 0,
   currentHp: 0,
   maxHp: 0,
@@ -47,6 +48,7 @@ const getters = {
   getCurrentExp: state => state.exp,
   getStatsToAllocate: state => state.statsToAllocate,
   getTalentsToAllocate: state => state.talentsToAllocate,
+  getIsInBerserk: state => state.isInBerserk,
   getStats: (state, getters) => {
     const currentStats = state.stats
     const equippedStats = getters.getEquippedStats
@@ -219,6 +221,9 @@ const mutations = {
   },
   'SET_DEFENDING' (state, is) {
     state.isDefending = is
+  },
+  'SET_BERSERK' (state, is) {
+    state.isInBerserk = is
   }
 }
 const actions = {
@@ -502,7 +507,11 @@ const actions = {
       }
     }
   },
-
+  /* actionType: {
+    action: ATK O MAG
+    type: il nome dell'attacco da playerattacks
+  }
+  */
   attackAction ({ commit, getters, state, dispatch }, actionType) {
     const monster = getters.getMonster
     const attack = constants.playerattacks[actionType.action][actionType.type]
@@ -510,12 +519,12 @@ const actions = {
     let damageDone
     let percentualHpDamage = 0
     let heal = 0
-    if (attack.cost.hp) {
-      percentualHpDamage = Math.round(state.maxHp * attack.cost.hp / 100)
+    if (attack.cost(state).hp) {
+      percentualHpDamage = Math.round(state.maxHp * attack.cost(state).hp / 100)
       commit('TAKE_DAMAGE', percentualHpDamage)
     }
-    if (attack.cost.mana) {
-      commit('SPEND_MANA', attack.cost.mana)
+    if (attack.cost(state).mana) {
+      commit('SPEND_MANA', attack.cost(state).mana)
     }
 
     dispatch('handleDebuffInAttackAction', effects)
@@ -652,6 +661,33 @@ const actions = {
       })
     }
     commit('SET_MANA', 0)
+  },
+
+  berserkTime ({ state, commit }) {
+    if (!state.isInBerserk) {
+      commit('SET_BERSERK', true)
+    }
+  },
+
+  berserkTankTalent ({ dispatch, commit, state }) {
+    if (!state.talents.TANK.BERSERK || !state.isInBerserk) {
+      return
+    }
+    commit('RESET_ATB', 'player')
+    dispatch('attackAction', {
+      action: 'ATK',
+      type: 'BERSERK'
+    })
+  },
+
+  autoDefTankTalent ({ commit, state }) {
+    if (state.isDefending) {
+      return
+    }
+    if (!state.talents.TANK.AUTODEF) {
+      return
+    }
+    commit('SET_DEFENDING', true)
   }
 }
 

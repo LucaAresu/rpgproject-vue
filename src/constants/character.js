@@ -29,7 +29,7 @@ export default {
     base: 10,
     perLevel: 5
   },
-  baseTalents: 15,
+  baseTalents: 115,
   statOrder: [
     'STR', 'MAG', 'AGI', 'VIT', 'LUCK'
   ],
