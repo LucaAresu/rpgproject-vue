@@ -140,7 +140,7 @@ export default {
 
   INTOSSICATED: {
     name: 'Intossicato',
-    icon: 'ballbusted.png',
+    icon: 'intossicated.png',
     type: 'DOT',
     tick: player => application.dotMillisecondsTick,
     limit: player => limit(player, 5),
@@ -177,7 +177,7 @@ export default {
 
   DISTRUTTO: {
     name: 'Distrutto',
-    icon: 'petofallito.png',
+    icon: 'distrutto.png',
     type: 'STACK',
     limit: player => limit(player, 50),
     log: {
@@ -199,7 +199,7 @@ export default {
 
   DEADLYPOISON: {
     name: 'Veleno Mortale',
-    icon: 'ballbusted.png',
+    icon: 'deadlypoison.png',
     type: 'DOT',
     tick: player => application.dotMillisecondsTick,
     limit: player => limit(player, 5),

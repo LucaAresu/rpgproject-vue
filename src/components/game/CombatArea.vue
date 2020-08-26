@@ -46,6 +46,7 @@
     <div class="character">
       <div class="icon">
         <img :src="require('@/assets/characters/' + $store.getters.getAvatar + '.png')" />
+        <img :src="require('@/assets/talents/defender.png')" style="width: 75px; height: 75px;" v-if="$store.getters.characterIsDefending"/>
       </div>
       <div class="healthbar">
         <resource-bar
@@ -105,6 +106,7 @@ export default {
   },
   methods: {
     handleAction (action) {
+      this.$store.dispatch('eventActionDone')
       if (action === 'DEF') {
         this.$store.commit('SET_DEFENDING', true)
       } else if (action === 'FUGA') {

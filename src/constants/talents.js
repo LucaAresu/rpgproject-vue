@@ -106,9 +106,9 @@ export default {
         icon: 'deadlydodge.png',
         maxLevel: 3,
         description: [
-          'Quando schivi rifletti una piccola quantità di danni che ti sarebbe arrivata',
-          'Quando schivi rifletti una media quantità di danni che ti sarebbe arrivata',
-          'Quando schivi rifletti una grande quantità di danni che ti sarebbe arrivata'
+          'Quando schivi fai una piccola quantità di danni al mostro',
+          'Quando schivi fai una media quantità di danni al mostro',
+          'Quando schivi fai una grande quantità di danni al mostro'
         ],
         requires: { name: 'SWIFTNESS', level: 3 }
       },
@@ -201,9 +201,11 @@ export default {
         name: 'Pensa con calma',
         icon: 'buffering.jpg',
         tier: 2,
-        maxLevel: 1,
+        maxLevel: 3,
         description: [
-          'Quando La barra ATB è piena si attiva da sola difesa fino a che non agisci'
+          'Quando La barra ATB è piena si attiva da sola difesa fino a che non agisci',
+          'Quando sei full Rage fai automaticamente danni al mostro. Costa tutta la Rage',
+          'L\'attacco automatico ti cura pure'
         ],
         requires: { name: 'DEFENDER', level: 3 }
       },

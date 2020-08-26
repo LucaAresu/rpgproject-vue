@@ -971,6 +971,7 @@ const actions = {
     }
     commit('SET_ATB_EVENT_MAX_FIRED', true)
     dispatch('healEnergyInAssassinSwiftnessTalent')
+    dispatch('autoDefenseInTankBufferingTalent')
   },
 
   eventPlayerDodged ({ dispatch, getters }) {
@@ -978,6 +979,19 @@ const actions = {
     if (player.talents.ASSASSIN.DEADLYDODGE) {
       dispatch('dodgeDamageInAssassinDeadlydodgeTalent')
     }
+  },
+
+  eventPlayerTookDamage ({ dispatch }, damage) {
+    dispatch('reflectDamageInTankDefenderTalent', damage)
+    dispatch('reflectDamageInTankThornsTalent', damage)
+  },
+
+  eventActionDone ({ dispatch, commit }) {
+    commit('SET_DEFENDING', false)
+  },
+
+  eventMaxResource ({ dispatch }) {
+    dispatch('autoAttackInBufferingTankDamage')
   }
 }
 

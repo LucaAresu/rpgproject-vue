@@ -50,8 +50,32 @@ export default {
         case 'MAGE': return BASE_MANA
       }
     },
-    Schivata: (level, { AGI }, player) => (BASE_DODGE + ((AGI * AGI) / (DODGE_DIVIDER * level))).toFixed(2),
-    HP: (level, { VIT }, player) => BASE_HP + (HP_LVL_MULTIPLIER * level) + (HP_VIT_MULTIPLIER * VIT),
+
+    Schivata: (level, { AGI }, player) => {
+      let schivata = (BASE_DODGE + ((AGI * AGI) / (DODGE_DIVIDER * level))).toFixed(2)
+      if (schivata > 100) {
+        schivata = 100
+      }
+      return schivata
+    },
+
+    HP: (level, { VIT }, player) => {
+      let hp = BASE_HP + (HP_LVL_MULTIPLIER * level) + (HP_VIT_MULTIPLIER * VIT)
+      if (player.talents.TANK.DURABLE) {
+        const DURABLE_LV1 = 10
+        const DURABLE_LV2 = 20
+        const DURABLE_LV3 = 50
+        let increase
+        switch (player.talents.TANK.DURABLE) {
+          case 1: increase = DURABLE_LV1; break
+          case 2: increase = DURABLE_LV2; break
+          case 3: increase = DURABLE_LV3; break
+        }
+        hp += Math.round((hp * increase) / 100)
+      }
+      return hp
+    },
+
     Critico: (level, { LUCK, AGI }, player) => {
       let crit
       if (player.talents.ASSASSIN.SWIFTNESS >= 1) {

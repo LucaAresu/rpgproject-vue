@@ -313,6 +313,7 @@ const actions = {
       damage.damage = damage.damage - Math.round((damage.damage * defenseReduction) / 100)
     }
     commit('TAKE_DAMAGE', damage.damage)
+    dispatch('eventPlayerTookDamage', damage.damage)
     damage.message = damage.message.damage.replace('{DAMAGE}', damage.damage).replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
     dispatch('logAddEntry', {
       message: damage.message,
@@ -425,12 +426,15 @@ const actions = {
     }
   },
 
-  healMana ({ commit, state }, mana) {
+  healMana ({ commit, state, dispatch }, mana) {
     const maxMana = state.maxMana
     if (state.currentMana + mana > maxMana) {
       commit('SET_MANA', maxMana)
     } else {
       commit('SPEND_MANA', mana * -1)
+    }
+    if (state.currentMana === maxMana) {
+      dispatch('eventMaxResource')
     }
   },
 
@@ -566,6 +570,88 @@ const actions = {
       monster: getters.getMonster,
       message: 'Esegui con perizia una schivata e riesci a fare {DAMAGE} danni'
     })
+  },
+
+  reflectDamageInTankDefenderTalent ({ dispatch, getters }, damage) {
+    if (!state.talents.TANK.DEFENDER) {
+      return
+    }
+    const defenderLevel = state.talents.TANK.DEFENDER
+    if (state.isDefending) {
+      const REFLECT_LV1 = 10
+      const REFLECT_LV2 = 20
+      const REFLECT_LV3 = 50
+      const REGENERATED_RAGE_LV1 = 5
+      const REGENERATED_RAGE_LV2 = 10
+      const REGENERATED_RAGE_LV3 = 20
+      let regeneratedRage
+      let reflectedDamage
+      switch (defenderLevel) {
+        case 1: reflectedDamage = REFLECT_LV1; regeneratedRage = REGENERATED_RAGE_LV1; break
+        case 2: reflectedDamage = REFLECT_LV2; regeneratedRage = REGENERATED_RAGE_LV2; break
+        case 3: reflectedDamage = REFLECT_LV3; regeneratedRage = REGENERATED_RAGE_LV3; break
+      }
+      const damageDone = Math.round((damage * reflectedDamage) / 100)
+      dispatch('healMana', regeneratedRage)
+      dispatch('debuffDamage', {
+        damage: damageDone,
+        monster: getters.getMonster,
+        message: '{MONSTER} attacca la tua difesa ferrea, riceve indietro {DAMAGE} danni'
+      })
+    }
+  },
+
+  reflectDamageInTankThornsTalent ({ dispatch, getters }, damage) {
+    if (!state.talents.TANK.THORNS) {
+      return
+    }
+    const defenderLevel = state.talents.TANK.THORNS
+    const REFLECT_LV1 = 5
+    const REFLECT_LV2 = 10
+    const REFLECT_LV3 = 15
+    let reflectedDamage
+    switch (defenderLevel) {
+      case 1: reflectedDamage = REFLECT_LV1; break
+      case 2: reflectedDamage = REFLECT_LV2; break
+      case 3: reflectedDamage = REFLECT_LV3; break
+    }
+    const damageDone = Math.round((damage * reflectedDamage) / 100)
+    dispatch('debuffDamage', {
+      damage: damageDone,
+      monster: getters.getMonster,
+      message: 'Rifletti {DAMAGE} danni su {MONSTER}'
+    })
+  },
+
+  autoDefenseInTankBufferingTalent ({ state, commit }) {
+    if (!state.talents.TANK.BUFFERING) {
+      return
+    }
+    commit('SET_DEFENDING', true)
+  },
+
+  autoAttackInBufferingTankDamage ({ getters, state, dispatch, commit }) {
+    if (!state.talents.TANK.BUFFERING || state.talents.TANK.BUFFERING < 2) {
+      return
+    }
+    const talentLevel = state.talents.TANK.BUFFERING
+    const AUTOATTACK_MULTIPLIER = 1.25
+    const damage = Math.round(state.params.ATK * AUTOATTACK_MULTIPLIER)
+    dispatch('debuffDamage', {
+      damage,
+      monster: getters.getMonster,
+      message: 'Sfoghi la tua rabbia facendo {DAMAGE} danni a {MONSTER}'
+    })
+    if (talentLevel > 2) {
+      const message = 'Sfogare la rabbia fa bene! Ti curi di {HEAL}'
+      const AUTOATTACK_HEAL_MULTIPLIER = 1
+      const heal = state.params.ATK * AUTOATTACK_HEAL_MULTIPLIER
+      dispatch('playerHeal', {
+        heal,
+        message
+      })
+    }
+    commit('SET_MANA', 0)
   }
 }
 
