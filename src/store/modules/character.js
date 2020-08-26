@@ -343,6 +343,7 @@ const actions = {
   */
   playerDodged ({ dispatch }, damage) {
     const message = damage.message.dodge.replace('{MONSTER}', damage.monster).replace('{ABILITY}', damage.ability)
+    dispatch('eventPlayerDodged')
     dispatch('logAddEntry', {
       message,
       type: 'COMBAT',
@@ -440,9 +441,9 @@ const actions = {
     }
     let heal = 0
     switch (swiftnessLevel) {
-      case 1: heal = 5; break
-      case 2: heal = 10; break
-      case 3: heal = 20; break
+      case 1: heal = 10; break
+      case 2: heal = 20; break
+      case 3: heal = 30; break
     }
     if (heal) {
       dispatch('healMana', heal)
@@ -547,6 +548,24 @@ const actions = {
   clearDebuff ({ commit }) {
     const debuff = { ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele })) }
     commit('CLEAR_DEBUFF', debuff)
+  },
+
+  dodgeDamageInAssassinDeadlydodgeTalent ({ dispatch, getters }) {
+    const talentLevel = state.talents.ASSASSIN.DEADLYDODGE
+    let damage = 0
+    const DMG_LV1 = 0.35
+    const DMG_LV2 = 0.70
+    const DMG_LV3 = 1
+    switch (talentLevel) {
+      case 1: damage = state.params.ATK * DMG_LV1; break
+      case 2: damage = state.params.ATK * DMG_LV2; break
+      case 3: damage = state.params.ATK * DMG_LV3; break
+    }
+    dispatch('debuffDamage', {
+      damage,
+      monster: getters.getMonster,
+      message: 'Esegui con perizia una schivata e riesci a fare {DAMAGE} danni'
+    })
   }
 }
 

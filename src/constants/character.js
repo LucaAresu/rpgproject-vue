@@ -59,9 +59,12 @@ export default {
       } else {
         crit = (BASE_CRITICAL + ((LUCK * LUCK) / (CRITICAL_DIVIDER * level))).toFixed(2)
       }
-      if (crit >= 100) {
-        crit = 100
+      if (!player.talents.ASSASSIN.CRITPOWER) {
+        if (crit >= 100) {
+          crit = 100
+        }
       }
+
       return crit
     }
   },

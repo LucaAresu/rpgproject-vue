@@ -40,6 +40,10 @@ const MORSO_RESOURCE_GENERATE = 10
 const ATK_SCHIACCIANOCI_MULTIPLIER = 10
 const SCHIACCIANOCI_RESOURCE_GENERATE = 20
 
+const ATK_INTOSSICAZIONE_MULTIPLIER = 3
+
+const ATK_BACKSTAB_MULTIPLIER = 15
+
 const ATK_DAMAGE_PETO_MULTIPLIER = 0.7
 const MAG_DAMAGE_PETO_MULTIPLIER = 0.2
 const ATK_HEAL_PETO_MULTIPLIER = 2
@@ -166,6 +170,59 @@ export default {
         },
         player: {
           resource: player => SCHIACCIANOCI_RESOURCE_GENERATE
+        }
+      }
+    },
+
+    INTOSSICAZIONE: {
+      key: 'INTOSSICAZIONE',
+      name: 'Intossicazione',
+      color: '#ffd166',
+      isTalent: true,
+      talentLocation: {
+        tree: 'ASSASSIN',
+        name: 'INTOSSICATION'
+      },
+      description: 'Colpo dalla media potenza. Avvelena',
+      log: 'Approfitti della distrazione di {MONSTER} per intossicarlo, gli fai {DAMAGE} danni',
+      cost: {
+        hp: 0,
+        mana: 20
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => calculateDamage(monster, params, 75, params.ATK * ATK_INTOSSICAZIONE_MULTIPLIER),
+          debuff: (player) => ({
+            type: 'ADD',
+            name: 'INTOSSICATED',
+            quantity: 5
+          })
+        }
+      }
+    },
+    BACKSTAB: {
+      key: 'BACKSTAB',
+      name: 'Attacco alle spalle',
+      color: '#f94144',
+      isTalent: true,
+      talentLocation: {
+        tree: 'ASSASSIN',
+        name: 'BACKSTAB'
+      },
+      description: 'Colpo di elevata potenza. Avvelena e applica distrutto. Ouch',
+      log: 'Sfrutti l\'apertura lasciata da {MONSTER} e lo attacchi alle spalle facendo {DAMAGE} danno',
+      cost: {
+        hp: 0,
+        mana: 50
+      },
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => calculateDamage(monster, params, 75, params.ATK * ATK_BACKSTAB_MULTIPLIER),
+          debuff: (player) => ({
+            type: 'ADD',
+            name: 'DEADLYPOISON',
+            quantity: 5
+          })
         }
       }
     }

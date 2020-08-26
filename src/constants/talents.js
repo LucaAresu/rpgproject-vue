@@ -84,9 +84,9 @@ export default {
         icon: 'swiftness.png',
         maxLevel: 3,
         description: [
-          'La statistica AGI fornisce anche attacco e critico e quando la barra ATB è piena rigeneri 5 Rage',
-          'Quando la barra ATB è piena rigeneri 10 Rage',
-          'Quando la barra ATB è piena rigeneri 20 rage'
+          'La statistica AGI fornisce anche attacco e critico e quando la barra ATB è piena rigeneri 10 Rage',
+          'Quando la barra ATB è piena rigeneri 20 Rage',
+          'Quando la barra ATB è piena rigeneri 30 rage'
         ]
       },
       INTOSSICATION: {
@@ -132,7 +132,7 @@ export default {
         icon: 'backstab.png',
         maxLevel: 1,
         description: [
-          'ABILITA\': Alto costo di energy, avvelena il nemico con un veleno fortissimo, applica 10 stack di Distrutto, e 5 ad ogni tick di dot'
+          'ABILITA\': Alto costo di energy, avvelena il nemico con un veleno fortissimo, che applica 5 stack di Distrutto ad ogni tick di dot'
         ],
         requires: { name: 'POISONED', level: 3 }
       },

@@ -657,6 +657,15 @@ const actions = {
             if (debuff.values.effect.monster.playerResource) {
               dispatch('healMana', debuff.values.effect.monster.playerResource(player))
             }
+            if (debuff.values.effect.monster.debuff) {
+              const debuffValue = debuff.values.effect.monster.debuff(monster, player)
+              if (debuffValue) {
+                dispatch('handleDebuff', {
+                  ...debuff.values.effect.monster.debuff(monster, player),
+                  receivedBy: 'MONSTER'
+                })
+              }
+            }
             commit('DEBUFF_DOT_MONSTER_TICK', debuff)
           }
           remainingTicks = getters.getMonsterDebuff[debuff.name]
@@ -777,9 +786,9 @@ const actions = {
   */
   handleStackDebuff ({ dispatch, getters, commit }, debuff) {
     const received = debuff.receivedBy
+    const player = getters.getCharacter
     if (received === 'PLAYER') {
       commit('ADD_DEBUFF', debuff)
-      const player = getters.getCharacter
       if (player.debuff[debuff.name] >= debuff.values.limit(player)) {
         const damage = {
           damage: debuff.values.effect.player.damage(player),
@@ -795,7 +804,7 @@ const actions = {
       const monster = state.monster
       if (monster.debuff[debuff.name] >= debuff.values.limit()) {
         const damage = {
-          damage: debuff.values.effect.monster.damage(monster),
+          damage: debuff.values.effect.monster.damage(monster, player),
           monster,
           message: debuff.values.log.monster
         }
@@ -962,6 +971,13 @@ const actions = {
     }
     commit('SET_ATB_EVENT_MAX_FIRED', true)
     dispatch('healEnergyInAssassinSwiftnessTalent')
+  },
+
+  eventPlayerDodged ({ dispatch, getters }) {
+    const player = getters.getCharacter
+    if (player.talents.ASSASSIN.DEADLYDODGE) {
+      dispatch('dodgeDamageInAssassinDeadlydodgeTalent')
+    }
   }
 }
 
