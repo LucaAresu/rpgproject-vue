@@ -34,6 +34,9 @@ const CEFFONE_RESOURCE_GENERATE = 10
 const ATK_TESTATA_MULTIPLIER = 10
 const TESTATA_RESOURCE_GENERATE = 20
 
+const BASTONATA_MANA_REGEN = 50
+const BASTONATA_DAMAGE = 1
+
 const ATK_MORSO_MULTIPLIER = 1
 const MORSO_RESOURCE_GENERATE = 10
 
@@ -95,6 +98,26 @@ export default {
         },
         player: {
           resource: player => TESTATA_RESOURCE_GENERATE
+        }
+      }
+    },
+    BASTONATA: {
+      key: 'BASTONATA',
+      name: 'Bastonata',
+      isClass: 'MAGE',
+      color: '#dda15e',
+      description: 'Anche i maghi possono farsi rispettare con una bella bastonata... danni ridicoli, ma almeno ti fa recuperare un po di mana',
+      log: 'Tiri una "potentissima" bastonata a {MONSTER} e soffre ben {DAMAGE} danno',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => BASTONATA_DAMAGE
+        },
+        player: {
+          resource: player => BASTONATA_MANA_REGEN
         }
       }
     },

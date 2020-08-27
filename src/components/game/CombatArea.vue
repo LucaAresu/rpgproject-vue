@@ -99,16 +99,16 @@ export default {
       timeout: null,
       n: 0,
       monsterAtb: this.$store.getters.getMonsterAtb,
-      playerAtb: this.$store.getters.getPlayerAtb,
       scanLevel: this.$store.getters.getTalents.EXPLORER.SCAN,
       resourceColor: constants.classes[this.$store.getters.getClass].resourceColor
     }
   },
   methods: {
     handleAction (action) {
+      this.playerAtb.current = 0
       this.$store.dispatch('eventActionDone')
       if (action === 'DEF') {
-        this.$store.commit('SET_DEFENDING', true)
+        this.$store.dispatch('defenseAction')
       } else if (action === 'FUGA') {
         if (!this.monster.isBoss) {
           if (Math.random() * 100 < constants.application.runAwayProbability) {
@@ -118,7 +118,6 @@ export default {
       } else {
         this.$store.dispatch('playerAction', action)
       }
-      this.playerAtb.current = 0
       this.$store.commit('SET_ATB_EVENT_MAX_FIRED', false)
     },
     getDebuffImage (name) {
@@ -130,6 +129,9 @@ export default {
     buttonArea
   },
   computed: {
+    playerAtb () {
+      return this.$store.getters.getPlayerAtb
+    },
     canAttack () {
       return this.playerAtb.current >= this.playerAtb.total
     },

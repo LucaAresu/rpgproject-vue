@@ -558,6 +558,18 @@ const actions = {
       action: constants.application.logActions.PLAYER_ATTACK
     })
   },
+
+  defenseAction ({ commit, getters, dispatch, state }) {
+    commit('SET_DEFENDING', true)
+    if (state.class === 'MAGE') {
+      const maxAtb = getters.getPlayerAtb.total
+      commit('SET_ATB', {
+        who: 'player',
+        value: maxAtb / 2
+      })
+    }
+  },
+
   clearDebuff ({ commit }) {
     const debuff = { ...Object.keys(constants.debuff).map(ele => ({ [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele })) }
     commit('CLEAR_DEBUFF', debuff)
