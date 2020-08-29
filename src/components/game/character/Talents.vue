@@ -7,7 +7,8 @@
       v-for="tree in talents"
       :key="tree.name"
       :style="{backgroundColor: tree.color}"
-      @click="selected = tree.key"
+      @click="select(tree.key)"
+      :ref="tree.key"
     >
     <div class="tree-name">
       {{tree.name}}
@@ -25,6 +26,12 @@ export default {
   data () {
     return {
       selected: ''
+    }
+  },
+  methods: {
+    select (key) {
+      this.selected = key
+      this.$refs[key][0].scrollIntoView({ behavior: 'smooth' })
     }
   },
   computed: {

@@ -36,6 +36,7 @@ const TESTATA_RESOURCE_GENERATE = 20
 
 const BASTONATA_MANA_REGEN = 50
 const BASTONATA_DAMAGE = 1
+const BASTONATA_SHATTER_DAMAGE = 5
 
 const ATK_MORSO_MULTIPLIER = 1
 const MORSO_RESOURCE_GENERATE = 10
@@ -53,12 +54,16 @@ const ATK_HEAL_BERSERK_PLEB = 2
 const ATK_BERSERK_MULTIPLIER_BUFF = 8
 const ATK_HEAL_BERSERK_BUFF = 5
 
-const ATK_DAMAGE_PETO_MULTIPLIER = 0.7
-const MAG_DAMAGE_PETO_MULTIPLIER = 0.2
+const ATK_DAMAGE_PETO_MULTIPLIER = 2
+const MAG_DAMAGE_PETO_MULTIPLIER = 2
 const ATK_HEAL_PETO_MULTIPLIER = 2
 const MAG_HEAL_PETO_MULTIPLIER = 1
 
 const MAG_DMG_INTOSSICAZIONE_MULTIPLIER = 2
+
+const MAG_DMG_GAVETTONEALLAMERDA_MULTIPLIER = 0.5
+
+const MAG_DMG_HYDRO_MULTIPLIER = 2
 
 export default {
   ATK: {
@@ -114,7 +119,53 @@ export default {
       }),
       effect: {
         monster: {
-          damage: (params, player, monster, commit) => BASTONATA_DAMAGE
+          damage: (params, player, monster, commit, dispatch) => {
+            if (player.talents.MAGEWARRIOR.SHATTER) {
+              const shatterLevel = player.talents.MAGEWARRIOR.SHATTER
+              let breakPercentage
+              switch (shatterLevel) {
+                case 1: breakPercentage = 25; break
+                case 2: breakPercentage = 50; break
+                case 3: breakPercentage = 100; break
+              }
+              if (Math.random() * 100 < breakPercentage) {
+                commit('SET_MONSTER_DEBUFF', {
+                  name: 'CONGELATO',
+                  quantity: 0
+                })
+                // TALENTO ICEAGE
+                if (player.talents.MAGEWARRIOR.ICEAGE) {
+                  let heal
+                  let mana
+                  switch (player.talents.MAGEWARRIOR.ICEAGE) {
+                    case 1: heal = player.maxHp / 2; mana = player.maxMana / 2; break
+                    case 2: heal = player.maxHp; mana = player.maxMana; break
+                  }
+                  dispatch('healMana', mana)
+                  dispatch('playerHeal', {
+                    message: 'Gli effetti dell\'era glaciale ti fanno rigenerare vita e mana',
+                    heal: heal
+                  })
+                }
+                // FINE ICEAGE
+                // TALENTO BRAINFREEZE
+                if (player.talents.MAGEWARRIOR.BRAINFREEZE) {
+                  const talentLevel = player.talents.MAGEWARRIOR.BRAINFREEZE
+                  let duration
+                  switch (talentLevel) {
+                    case 1: duration = 1000; break
+                    case 2: duration = 2000; break
+                    case 3: duration = 3000; break
+                    default: duration = 0; break
+                  }
+                  dispatch('freezeMonsterAtb', duration)
+                }
+                // FINE BRAINFREEZE
+                return calculateDamage(monster, params, 20, params.MAG * BASTONATA_SHATTER_DAMAGE)
+              }
+            }
+            return BASTONATA_DAMAGE
+          }
         },
         player: {
           resource: player => BASTONATA_MANA_REGEN
@@ -316,7 +367,38 @@ export default {
       }),
       effect: {
         monster: {
-          damage: (params, player, monster, commit) => calculateDamage(monster, params, 30, (params.ATK * ATK_DAMAGE_PETO_MULTIPLIER) + (params.MAG * MAG_DAMAGE_PETO_MULTIPLIER))
+          damage: (params, player, monster, commit) => {
+            let petoDamage = (params.ATK * ATK_DAMAGE_PETO_MULTIPLIER) + (params.MAG * MAG_DAMAGE_PETO_MULTIPLIER)
+            if (player.talents.FARTER.SMELL && player.debuff.PETOFALLITO) {
+              const petoStacks = player.debuff.PETOFALLITO
+              const SMELL_LV1 = 10
+              const SMELL_LV2 = 20
+              const SMELL_LV3 = 50
+              let bonus
+              switch (player.talents.FARTER.SMELL) {
+                case 1: bonus = SMELL_LV1; break
+                case 2: bonus = SMELL_LV2; break
+                case 3: bonus = SMELL_LV3; break
+              }
+              bonus *= petoStacks
+              petoDamage += Math.round(petoDamage * bonus / 100)
+            }
+            return calculateDamage(monster, params, 30, petoDamage)
+          },
+          debuff: (player) => {
+            let stacks
+            switch (player.talents.FARTER.TANFO) {
+              case 1: stacks = 5; break
+              case 2: stacks = 10; break
+              case 3: stacks = 20; break
+              default: stacks = 0; break
+            }
+            return {
+              type: 'ADD',
+              name: 'TANFO',
+              quantity: stacks
+            }
+          }
         },
         player: {
           heal: (params, player) => Math.round((params.ATK * ATK_HEAL_PETO_MULTIPLIER) + (params.MAG * MAG_HEAL_PETO_MULTIPLIER)),
@@ -352,7 +434,7 @@ export default {
               default: quantity = 1; break
             }
             return {
-              type: 'EFFECT',
+              type: 'ADD',
               name: 'INTOSSICATO',
               quantity
             }
@@ -452,8 +534,159 @@ export default {
           }
         }
       }
+    },
+
+    GAVETTONEALLAMERDA: {
+      key: 'GAVETTONEALLAMERDA',
+      name: 'Gavettone alla Merda',
+      color: '#8a5a44',
+      description: 'Abilità dai danni ridotti, mettte un dot e toglie gli effetti collaterali dei peti',
+      log: '{MONSTER} un bel Gavettone alla merda... e {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'FARTER',
+        name: 'GAVETTONE'
+      },
+      cost: player => ({
+        hp: 0,
+        mana: 15
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => {
+            commit('SET_DEBUFF', {
+              name: 'PETOFALLITO',
+              quantity: 0
+            })
+            return calculateDamage(monster, params, 5, (params.MAG * MAG_DMG_GAVETTONEALLAMERDA_MULTIPLIER))
+          },
+          debuff: (player) => {
+            let quantity
+            switch (player.talents.FARTER.STICKYGAVETTONE) {
+              case 1: quantity = 10; break
+              case 2: quantity = 15; break
+              case 3: quantity = 20; break
+              default: quantity = 5; break
+            }
+            return {
+              type: 'ADD',
+              name: 'STICKYGAVETTONE',
+              quantity
+            }
+          }
+        }
+      }
+    },
+
+    APOOCALYPSE: {
+      key: 'APOOCALYPSE',
+      name: 'aPOOcalisse',
+      color: '#8a5a44',
+      description: 'Danni in base agli stacks dei debuff dei peti, rigenera tutto il mana e la vita',
+      log: '{MONSTER} subisce gli effetti di una shitexplosion e subisce {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'FARTER',
+        name: 'APOOCALYPSE'
+      },
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            const tanfo = monster.debuff.TANFO
+            const gavettone = monster.debuff.STICKYGAVETTONE
+            const multiplier = tanfo + gavettone
+            dispatch('healMana', player.maxMana)
+            dispatch('playerHeal', {
+              message: 'Recuperi tutta la vita grazie alla devastante aPOOcalisse',
+              heal: player.maxHp
+            })
+            commit('SET_MONSTER_DEBUFF', {
+              name: 'STICKYGAVETTONE',
+              quantity: 1
+            })
+            commit('SET_MONSTER_DEBUFF', {
+              name: 'TANFO',
+              quantity: 1
+            })
+            return calculateDamage(monster, params, 5, (params.MAG * multiplier))
+          }
+        }
+      }
+    },
+    HYDRO: {
+      key: 'HYDRO',
+      name: 'Hydro',
+      color: '#48bfe3',
+      description: 'Danni normali, bagna il nemico',
+      log: '{MONSTER} viene bagnato e subisce {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'MAGEWARRIOR',
+        name: 'HYDRO'
+      },
+      cost: player => ({
+        hp: 0,
+        mana: 10
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => calculateDamage(monster, params, 20, (params.MAG * MAG_DMG_HYDRO_MULTIPLIER)),
+          debuff: player => {
+            let quantity
+            switch (player.talents.MAGEWARRIOR.TSUNAMI) {
+              case 1: quantity = 2; break
+              case 2: quantity = 3; break
+              case 3: quantity = 5; break
+              default: quantity = 1; break
+            }
+            return {
+              type: 'ADD',
+              name: 'BAGNATO',
+              quantity
+            }
+          }
+        }
+      }
+    },
+
+    GLACIAZIONE: {
+      key: 'GLACIAZIONE',
+      name: 'Glaciazione',
+      color: '#9bf6ff',
+      description: 'Danni normali, potrebbe congelare un nemico bagnato',
+      log: '{MONSTER} viene bagnato e subisce {DAMAGE} danni',
+      isTalent: true,
+      talentLocation: {
+        tree: 'MAGEWARRIOR',
+        name: 'HYDRO'
+      },
+      cost: player => ({
+        hp: 0,
+        mana: 10
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            const bagnatoStacks = monster.debuff.BAGNATO
+            if (Math.random() * 100 < bagnatoStacks * 5) {
+              commit('SET_MONSTER_DEBUFF', {
+                name: 'BAGNATO',
+                quantity: 0
+              })
+              dispatch('handleDebuff', {
+                name: 'CONGELATO',
+                quantity: 1,
+                receivedBy: 'MONSTER'
+              })
+            }
+            return calculateDamage(monster, params, 20, (params.MAG * MAG_DMG_HYDRO_MULTIPLIER))
+          }
+        }
+      }
     }
-
   }
-
 }

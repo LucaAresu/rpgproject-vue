@@ -16,6 +16,10 @@ const INTOSSICATED_MONSTER_DAMAGE = 3.25
 const DEADLYPOSON_MONSTER_DAMAGE = 7.50
 
 const DISTRUTTO_MONSTER_DAMAGE = 12.52
+
+const GAVETTONE_MAG_MULTIPLIER = 9.52
+
+const TANFO_MAG_MULTIPLIER = 7.67
 /*
 tipi debuff
 STACK una volta raggiunto il limite si subiscono danni
@@ -220,5 +224,65 @@ export default {
         })
       }
     }
+  },
+
+  STICKYGAVETTONE: {
+    name: 'Gavettone Appiccicoso',
+    icon: 'gavettone.png',
+    type: 'DOT',
+    tick: player => application.dotMillisecondsTick,
+    limit: player => limit(player, 50),
+    log: {
+      player: {
+        damage: 'Ti butti per terra dal dolore ai gioiellini... ricevi {DAMAGE} danni',
+        dodge: 'Tieni duro anche se il dolore ai gioiellini è devastante'
+      },
+      monster: 'Il tanfo del gavettone su {MONSTER} causa {DAMAGE} danni'
+    },
+    effect: {
+      monster: {
+        damage: (monster, player) => Math.round(GAVETTONE_MAG_MULTIPLIER * player.params.MAG)
+      }
+    }
+  },
+
+  TANFO: {
+    name: 'Gavettone Appiccicoso',
+    icon: 'tanfo.png',
+    type: 'DOT',
+    tick: player => application.dotMillisecondsTick,
+    limit: player => limit(player, 100),
+    log: {
+      player: {
+        damage: 'Ti butti per terra dal dolore ai gioiellini... ricevi {DAMAGE} danni',
+        dodge: 'Tieni duro anche se il dolore ai gioiellini è devastante'
+      },
+      monster: 'Il tanfo su {MONSTER} causa {DAMAGE} danni'
+    },
+    effect: {
+      monster: {
+        damage: (monster, player) => Math.round(TANFO_MAG_MULTIPLIER * player.params.MAG)
+      }
+    }
+  },
+
+  BAGNATO: {
+    name: 'Bagnato',
+    icon: 'hydro.jpg',
+    type: 'EFFECT',
+    limit: player => {
+      switch (player.talents.MAGEWARRIOR.TSUNAMI) {
+        case 1: return 12
+        case 2: return 15
+        case 3: return 20
+        default: return 10
+      }
+    }
+  },
+  CONGELATO: {
+    name: 'Congelato',
+    icon: 'glaciazione.jpg',
+    type: 'EFFECT',
+    limit: player => 1
   }
 }

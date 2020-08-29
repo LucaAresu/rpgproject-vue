@@ -26,7 +26,8 @@ const state = {
     },
     monster: {
       current: 0,
-      total: 0
+      total: 0,
+      frozen: false
     }
   },
   attackKey: 0,
@@ -228,6 +229,12 @@ const mutations = {
   },
   'SET_ATB_EVENT_MAX_FIRED' (state, hasFired) {
     state.atbMaxEventFired = hasFired
+  },
+  'LOCK_MONSTER_ATB' (state) {
+    state.atb.monster.frozen = true
+  },
+  'UNLOCK_MONSTER_ATB' (state) {
+    state.atb.monster.frozen = false
   }
 }
 
@@ -962,6 +969,16 @@ const actions = {
     commit('DOUBLE_COST', item)
   },
 
+  freezeMonsterAtb ({ commit }, duration) {
+    if (!duration) {
+      return
+    }
+    commit('LOCK_MONSTER_ATB')
+    setTimeout(() => {
+      commit('UNLOCK_MONSTER_ATB')
+    }, duration)
+  },
+
   eventStartCombat ({ getters, commit, dispatch }) {
     const currentClass = getters.getClass
     if (currentClass === 'WARRIOR') {
@@ -991,6 +1008,7 @@ const actions = {
   eventPlayerTookDamage ({ dispatch }, damage) {
     dispatch('reflectDamageInTankDefenderTalent', damage)
     dispatch('reflectDamageInTankThornsTalent', damage)
+    dispatch('increaseDotInFarterShitarmorTalent', damage)
   },
 
   eventActionDone ({ dispatch, commit }) {

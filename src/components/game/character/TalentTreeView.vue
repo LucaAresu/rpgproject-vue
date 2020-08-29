@@ -2,7 +2,7 @@
   <div class="talent-tree-view">
     <div class="talent-area" :style="{backgroundColor: tree.viewcolor}">
         <div class="row" v-for="tier in tree.maxTier" :key="tier">
-          <div class="talent" v-for="talent in getTalentsInTier(tier)" :key="talent.name" @click="selectedTalent = talent">
+          <div class="talent" v-for="talent in getTalentsInTier(tier)" :key="talent.name" :class="{selected:selectedTalent === talent}" @click="selectedTalent = talent">
             <div class="image">
             <img :src="require('@/assets/talents/' + talent.icon)" />
             </div>
@@ -100,6 +100,7 @@ img {
   display: flex;
   justify-content: center;
   margin: 0.2rem;
+  max-height: 70px;
 }
 .talent {
   width: 50%;
@@ -126,5 +127,8 @@ button {
 }
 button:hover {
   box-shadow: inset 1px 1px 1px black;
+}
+.selected {
+  border: 2px solid black;
 }
 </style>

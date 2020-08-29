@@ -26,7 +26,7 @@
           />
           <resource-bar
             height="0.5rem"
-            color="#ffc857"
+            :color="monsterAtbFrozen ? '#9bf6ff': '#ffc857'"
             :current="monsterAtb.current"
             :max="monsterAtb.total"
             :transition="100"
@@ -155,6 +155,9 @@ export default {
     },
     currentPlayerAtb () {
       return this.$store.getters.getAtbs.player.current
+    },
+    monsterAtbFrozen () {
+      return this.$store.getters.getAtbs.monster.frozen
     }
   },
   watch: {
@@ -179,7 +182,7 @@ export default {
         playerAtb.current = playerAtb.total
       }
 
-      if (monsterAtb.current < monsterAtb.total) {
+      if (monsterAtb.current < monsterAtb.total && !this.monsterAtbFrozen) {
         monsterAtb.current += tick
       }
 

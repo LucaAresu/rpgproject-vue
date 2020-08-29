@@ -335,9 +335,9 @@ export default {
         icon: 'smell.png',
         maxLevel: 3,
         description: [
-          'Ogni peto aumenta i danni del peto successivo dal 10% fino a che non subisci le conseguenze',
-          'Ogni peto aumenta i danni del peto successivo dal 20% fino a che non subisci le conseguenze',
-          'Ogni peto aumenta i danni del peto successivo dal 50% fino a che non subisci le conseguenze'
+          'I danni dei peti aumentano del 10% per ogni stack di Peto Fallito che hai',
+          'I danni dei peti aumentano del 20% per ogni stack di Peto Fallito che hai',
+          'I danni dei peti aumentano del 50% per ogni stack di Peto Fallito che hai'
         ]
       },
       GAVETTONE: {
@@ -374,7 +374,7 @@ export default {
           'Il dot ora dura 15 secondi',
           'Il dot dura 20 secondi'
         ],
-        requires: { name: 'GAVETTONE', level: 3 }
+        requires: { name: 'GAVETTONE', level: 1 }
       },
       SHITARMOR: {
         key: 'SHITARMOR',
@@ -383,9 +383,9 @@ export default {
         icon: 'shitarmor.jpg',
         maxLevel: 3,
         description: [
-          'Quando subisci danno mentre difendi il mostro aumenta i suoi stacks di dot di 1 secondo',
-          'Ora i dot vengono aumentati di 2 secondi',
-          'I dot vengono aumentati di 5 secondi'
+          'Quando subisci danno mentre difendi il mostro aumenta i suoi stacks di dot di 4 secondi',
+          'Ora i dot vengono aumentati di 7 secondi',
+          'I dot vengono aumentati di 10 secondi'
         ],
         requires: { name: 'TANFO', level: 3 }
       },
@@ -439,9 +439,9 @@ export default {
         icon: 'tsunami.png',
         maxLevel: 3,
         description: [
-          'Hydro applica 2 stack di bagnato e gli stack massimi sono 10',
-          'Hydro applica 3 stack di bagnato e gli stack massimi sono 12',
-          'Hydro applica 5 di bagnato stack e gli stack massimi sono 15'
+          'Hydro applica 2 stack di bagnato e gli stack massimi sono 12',
+          'Hydro applica 3 stack di bagnato e gli stack massimi sono 15',
+          'Hydro applica 5 di bagnato stack e gli stack massimi sono 20'
         ],
         requires: { name: 'GLACIAZIONE', level: 1 }
       },
@@ -452,9 +452,9 @@ export default {
         icon: 'shatter.png',
         maxLevel: 3,
         description: [
-          'Tirare ceffone a un nemico congelato ha il 25% di spaccare il ghiaccio e provocare ingenti danni fisici',
-          'Ceffone ha il 50% di rompere il ghiaccio',
-          'Ceffone rompe sempre il ghiaccio'
+          'Tirare Bastonata a un nemico congelato ha il 25% di spaccare il ghiaccio e provocare ingenti danni fisici',
+          'Bastonata ha il 50% di rompere il ghiaccio',
+          'Bastonata rompe sempre il ghiaccio'
         ],
         requires: { name: 'GLACIAZIONE', level: 1 }
       },

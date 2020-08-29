@@ -55,6 +55,7 @@ export default {
       this.$store.dispatch('buyItem', item)
     },
     buyEquip (item) {
+      this.$store.commit('ADD_MONEY', item.cost * -1)
       item.cost = Math.round(item.cost / constants.inventory.costIncrementInShopMultiplier)
       this.$store.commit('ADD_NEW_ITEM', item)
       this.shop.items = this.shop.items.filter(ele => ele.id !== item.id)

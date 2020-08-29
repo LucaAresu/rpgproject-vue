@@ -489,11 +489,12 @@ const actions = {
     }
   },
 
-  handleDebuffInAttackAction ({ dispatch, state }, effects) {
+  handleDebuffInAttackAction ({ dispatch, state, getters }, effects) {
+    const monster = getters.getMonster
     if (effects.player) {
       if (effects.player.debuff) {
         dispatch('handleDebuff', {
-          ...effects.player.debuff(state),
+          ...effects.player.debuff(state, monster),
           receivedBy: 'PLAYER'
         })
       }
@@ -501,7 +502,7 @@ const actions = {
     if (effects.monster) {
       if (effects.monster.debuff) {
         dispatch('handleDebuff', {
-          ...effects.monster.debuff(state),
+          ...effects.monster.debuff(state, monster),
           receivedBy: 'MONSTER'
         })
       }
@@ -700,6 +701,41 @@ const actions = {
       return
     }
     commit('SET_DEFENDING', true)
+  },
+
+  increaseDotInFarterShitarmorTalent ({ state, dispatch, getters }) {
+    if (!state.talents.FARTER.SHITARMOR || !state.isDefending) {
+      return
+    }
+    const monsterDebuff = getters.getMonsterDebuff
+    const tanfoStacks = monsterDebuff.TANFO
+    const gavettoneStacks = monsterDebuff.STICKYGAVETTONE
+    const SA_LV1 = 4
+    const SA_LV2 = 7
+    const SA_LV3 = 10
+    let stacks
+    switch (state.talents.FARTER.SHITARMOR) {
+      case 1: stacks = SA_LV1; break
+      case 2: stacks = SA_LV2; break
+      case 3: stacks = SA_LV3; break
+      default: stacks = 0; break
+    }
+
+    if (tanfoStacks) {
+      dispatch('handleDebuff', {
+        name: 'TANFO',
+        quantity: stacks,
+        receivedBy: 'MONSTER'
+      })
+    }
+
+    if (gavettoneStacks) {
+      dispatch('handleDebuff', {
+        name: 'STICKYGAVETTONE',
+        quantity: stacks,
+        receivedBy: 'MONSTER'
+      })
+    }
   }
 }
 
