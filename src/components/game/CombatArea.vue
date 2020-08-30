@@ -55,7 +55,12 @@
           :current="$store.getters.getCurrentHp"
           :max="$store.getters.getMaxHp"
         />
-        <resource-bar
+        <affinity-bar v-if="character.class === 'ZOOLOGIST'"
+          height="0.7rem"
+          :current="$store.getters.getCurrentMana"
+          :max="$store.getters.getMaxMana"
+        />
+        <resource-bar v-else
           height="0.7rem"
           :color="resourceColor"
           :current="$store.getters.getCurrentMana"
@@ -91,6 +96,7 @@
 </template>
 <script>
 import resourceBar from '../ui/ResourceBar'
+import affinityBar from '../ui/AffinityBar'
 import buttonArea from './ButtonArea'
 import constants from '../../constants'
 export default {
@@ -126,7 +132,8 @@ export default {
   },
   components: {
     resourceBar,
-    buttonArea
+    buttonArea,
+    affinityBar
   },
   computed: {
     playerAtb () {

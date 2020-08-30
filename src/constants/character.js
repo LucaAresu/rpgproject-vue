@@ -4,10 +4,10 @@ const ATK_AGI_MULTIPLIER = 1.35
 const ATK_LVL_MULTIPLIER = 1.16
 
 const MAG_MAG_MULTIPLIER = 1.584
-const MAG_LVL_MULTIPLIER = 1.0064
 
 const BASE_MANA = 200
 const BASE_RAGE = 100
+const BASE_AFFINITY = 50
 
 const BASE_DODGE = 10
 const DODGE_DIVIDER = 25
@@ -16,7 +16,7 @@ const BASE_HP = 250
 const HP_VIT_MULTIPLIER = 98
 const HP_LVL_MULTIPLIER = 25
 
-const BASE_CRITICAL = 20
+const BASE_CRITICAL = 10
 const CRITICAL_DIVIDER = 8
 const AGI_CRIT_MULTIPLIER = 3.45
 
@@ -43,11 +43,12 @@ export default {
       }
       return Math.round(STR * ATK_STR_MULTIPLIER + level * ATK_LVL_MULTIPLIER)
     },
-    Magia: (level, { MAG }, player) => Math.round(Math.pow(MAG, MAG_MAG_MULTIPLIER) * Math.pow(level, MAG_LVL_MULTIPLIER)),
+    Magia: (level, { MAG }, player) => Math.round(Math.pow(MAG, MAG_MAG_MULTIPLIER)),
     Mana: (level, { MAG }, character) => {
       switch (character.class) {
         case 'WARRIOR': return BASE_RAGE
         case 'MAGE': return BASE_MANA
+        case 'ZOOLOGIST': return BASE_AFFINITY
       }
     },
 

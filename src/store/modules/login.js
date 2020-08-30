@@ -162,7 +162,6 @@ const actions = {
     commit('LOGOUT')
   },
   saveGameData ({ getters, rootState }) {
-    return
     // eslint-disable-next-line no-unreachable
     const saveUrl = getters.getUserId + '/save.json?auth=' + getters.getToken
     axiosSave.put(saveUrl, rootState)

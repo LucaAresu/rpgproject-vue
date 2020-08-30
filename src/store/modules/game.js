@@ -518,7 +518,7 @@ const actions = {
     commit('RESET_ATB', 'monster')
   },
 
-  endCombat ({ commit, dispatch, state }) {
+  endCombat ({ commit, dispatch, state, getters }) {
     dispatch('resetTimers')
     commit('CHANGE_COMBAT_STATUS', false)
     if (state.monster.isBoss) {
@@ -528,6 +528,10 @@ const actions = {
     commit('SET_BERSERK', false)
     commit('DELETE_MONSTER')
     commit('CLEAR_DROP_LIST')
+    const currentClass = getters.getClass
+    if (!currentClass === 'MAGE') {
+      commit('SET_MANA', 0)
+    }
   },
 
   async handleDrops ({ commit, dispatch, state }) {
@@ -981,7 +985,7 @@ const actions = {
 
   eventStartCombat ({ getters, commit, dispatch }) {
     const currentClass = getters.getClass
-    if (currentClass === 'WARRIOR') {
+    if (!currentClass === 'MAGE') {
       commit('SET_MANA', 0)
     }
     dispatch('autoDefTankTalent')

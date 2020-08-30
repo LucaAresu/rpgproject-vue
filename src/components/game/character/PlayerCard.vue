@@ -29,7 +29,8 @@
            {{resourceName}}: {{ currentMana }}/{{ maxMana }}
           </div>
           <div class="bar">
-           <resource-bar :color="resourceColor" :current="currentMana" :max="maxMana" height="1rem" />
+            <affinity-bar v-if="this.$store.getters.getClass === 'ZOOLOGIST'" :current="currentMana" :max="maxMana" height="1rem" />
+            <resource-bar v-else :color="resourceColor" :current="currentMana" :max="maxMana" height="1rem" />
           </div>
         </div>
       </div>
@@ -42,6 +43,7 @@
 <script>
 import constants from '../../../constants'
 import resourceBar from '../../ui/ResourceBar'
+import affinityBar from '../../ui/AffinityBar'
 export default {
   data () {
     return {
@@ -63,7 +65,8 @@ export default {
     maxExp () { return this.$store.getters.getExpRequired }
   },
   components: {
-    resourceBar
+    resourceBar,
+    affinityBar
   }
 }
 </script>

@@ -70,6 +70,7 @@ export default {
     CEFFONE: {
       key: 'CEFFONE',
       name: 'Ceffone',
+      isClass: 'WARRIOR',
       color: '#f6bd60',
       description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
       log: 'Tiri un ceffone fortissimo a {MONSTER} e riceve {DAMAGE} danni',

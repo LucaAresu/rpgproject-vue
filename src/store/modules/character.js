@@ -105,7 +105,7 @@ const mutations = {
     state.currentHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
     state.maxHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
     const mana = constants.character.paramFormulas.Mana(state.level, state.stats, state)
-    state.currentMana = mana
+    state.currentMana = payload.class === 'MAGE' ? mana : 0
     state.maxMana = mana
     state.talentsToAllocate = constants.character.baseTalents
     state.stats = {
@@ -138,7 +138,7 @@ const mutations = {
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
     const newMana = constants.character.paramFormulas.Mana(state.level, stats, state)
     state.maxMana = newMana
-    state.currentMana = Math.round(newMana * manaPercentage / 100)
+    state.currentMana = state.class === 'MAGE' ? Math.round(newMana * manaPercentage / 100) : 0
     // calculate new hp
     const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
     const newHp = constants.character.paramFormulas.HP(state.level, stats, state)
@@ -151,7 +151,7 @@ const mutations = {
     const manaPercentage = Math.round(state.currentMana * 100 / state.maxMana)
     const newMana = constants.character.paramFormulas.Mana(state.level, state.stats, state)
     state.maxMana = newMana
-    state.currentMana = Math.round(newMana * manaPercentage / 100)
+    state.currentMana = state.class === 'MAGE' ? Math.round(newMana * manaPercentage / 100) : 0
     // calculate new hp
     const hpPercentage = Math.round(state.currentHp * 100 / state.maxHp)
     const newHp = constants.character.paramFormulas.HP(state.level, state.stats, state)
@@ -736,6 +736,13 @@ const actions = {
         receivedBy: 'MONSTER'
       })
     }
+  },
+  /* affinity: {
+    type: FIS O MAG
+    quantity:
+  } */
+  generateAffinity ({ state, commit }, affinity) {
+
   }
 }
 
