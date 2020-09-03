@@ -13,9 +13,10 @@ export default {
   },
   ZOOLOGIST: {
     name: 'Zoologo',
-    defenseReduction: 25,
+    defenseReduction: 35,
     resourceName: 'Affinità',
     physicalColor: '#8b1e3f',
-    magicalColor: 'blue'
+    magicalColor: 'blue',
+    affinityLimit: 50
   }
 }

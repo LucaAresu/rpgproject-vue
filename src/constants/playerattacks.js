@@ -50,9 +50,13 @@ const ATK_BACKSTAB_MULTIPLIER = 15
 
 const ATK_BERSERK_MULTIPLIER_PLEB = 3
 const ATK_HEAL_BERSERK_PLEB = 2
-
 const ATK_BERSERK_MULTIPLIER_BUFF = 8
 const ATK_HEAL_BERSERK_BUFF = 5
+
+const COLPOMAGNETICO_ATK_MULTIPLIER = 6.42
+
+const IGOR_ATK_MULTIPLIER_PLEB = 2.12
+const IGOR_ATK_MULTIPLIER_BUFF = 4.25
 
 const ATK_DAMAGE_PETO_MULTIPLIER = 2
 const MAG_DAMAGE_PETO_MULTIPLIER = 2
@@ -64,6 +68,8 @@ const MAG_DMG_INTOSSICAZIONE_MULTIPLIER = 2
 const MAG_DMG_GAVETTONEALLAMERDA_MULTIPLIER = 0.5
 
 const MAG_DMG_HYDRO_MULTIPLIER = 2
+
+const SCARICACINETICA_MAG_MULTIPLIER = 1.96
 
 export default {
   ATK: {
@@ -348,6 +354,65 @@ export default {
               case 2: return params.ATK * ATK_HEAL_BERSERK_PLEB
               case 3: return params.ATK * ATK_HEAL_BERSERK_BUFF
               default: return 0
+            }
+          }
+        }
+      }
+    },
+    COLPOMAGNETICO: {
+      key: 'COLPOMAGNETICO',
+      name: 'Colpo Magnetico',
+      isClass: 'ZOOLOGIST',
+      color: '#adb5bd',
+      description: 'Danni moderati, genera affinità fisica',
+      log: 'Sfrutti la forza magnetica dell\'aria per infliggere {DAMAGE} danni a {MONSTER}',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            dispatch('generateAffinity', {
+              type: 'FIS',
+              quantity: 15
+            })
+            return calculateDamage(monster, params, 20, params.ATK * COLPOMAGNETICO_ATK_MULTIPLIER)
+          }
+        }
+      }
+    },
+    IGOR: {
+      key: 'IGOR',
+      name: 'Igor',
+      isClass: 'COMPANION',
+      color: '#f6bd60',
+      description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
+      log: 'Igor attacca {MONSTER} e riceve {DAMAGE} danni. ROAR',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => {
+            const igor = player.talents.JUNGLEKING.TIGRE
+            if (igor < 3) {
+              return calculateDamage(monster, params, 20, params.ATK * IGOR_ATK_MULTIPLIER_PLEB)
+            } else {
+              return calculateDamage(monster, params, 20, params.ATK * IGOR_ATK_MULTIPLIER_BUFF)
+            }
+          },
+          debuff: player => {
+            const igor = player.talents.JUNGLEKING.TIGRE
+            let quantity = 0
+            if (igor >= 2) {
+              quantity = 5
+            }
+            return {
+              type: 'ADD',
+              name: 'GRAFFIO',
+              quantity
             }
           }
         }
@@ -685,6 +750,29 @@ export default {
               })
             }
             return calculateDamage(monster, params, 20, (params.MAG * MAG_DMG_HYDRO_MULTIPLIER))
+          }
+        }
+      }
+    },
+    SCARICACINETICA: {
+      key: 'SCARICACINETICA',
+      name: 'Scarica Cinetica',
+      isClass: 'ZOOLOGIST',
+      color: '#90c2e7',
+      description: 'Danni moderati, genera affinità magica',
+      log: 'Igor attacca {MONSTER} e riceve {DAMAGE} danni.',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            dispatch('generateAffinity', {
+              type: 'MAG',
+              quantity: 15
+            })
+            return calculateDamage(monster, params, 20, params.MAG * SCARICACINETICA_MAG_MULTIPLIER)
           }
         }
       }

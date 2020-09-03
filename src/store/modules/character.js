@@ -35,7 +35,11 @@ const state = {
   talents: Object.keys(constants.talents).map(ele => ({
     [ele]: Object.keys(constants.talents[ele].talents).map(ele => (
       { [ele]: 0 })).reduce((acc, ele) => ({ ...acc, ...ele }), {})
-  })).reduce((acc, ele) => ({ ...acc, ...ele }))
+  })).reduce((acc, ele) => ({ ...acc, ...ele })),
+  activeCompanions: {
+    IGOR: false,
+    CITRULLO: false
+  }
 
 }
 
@@ -224,6 +228,12 @@ const mutations = {
   },
   'SET_BERSERK' (state, is) {
     state.isInBerserk = is
+  },
+  'ACTIVATE_COMPANION' (state, companion) {
+    state.activeCompanions[companion] = true
+  },
+  'DISABLE_COMPANION' (state, companion) {
+    state.activeCompanions[companion] = false
   }
 }
 const actions = {
@@ -569,6 +579,13 @@ const actions = {
         value: maxAtb / 2
       })
     }
+    if (state.class === 'ZOOLOGIST') {
+      const maxAtb = getters.getPlayerAtb.total
+      commit('SET_ATB', {
+        who: 'player',
+        value: maxAtb / 4
+      })
+    }
   },
 
   clearDebuff ({ commit }) {
@@ -741,9 +758,51 @@ const actions = {
     type: FIS O MAG
     quantity:
   } */
-  generateAffinity ({ state, commit }, affinity) {
+  generateAffinity ({ state, commit, dispatch }, affinity) {
+    const affinityLimit = constants.classes.ZOOLOGIST.affinityLimit
+    const currentAffinity = state.currentMana
+    if (affinity.type === 'FIS') {
+      if (currentAffinity - affinity.quantity < affinityLimit * -1) {
+        commit('SET_MANA', affinityLimit * -1)
+      } else {
+        commit('SPEND_MANA', affinity.quantity)
+      }
+      if (state.currentMana === affinityLimit * -1) {
+        dispatch('eventMaxAffinityFis')
+      }
+    } else {
+      if (currentAffinity + affinity.quantity > affinityLimit) {
+        commit('SET_MANA', affinityLimit)
+      } else {
+        commit('SPEND_MANA', affinity.quantity * -1)
+      }
+      if (state.currentMana === affinityLimit) {
+        dispatch('eventMaxAffinityMag')
+      }
+    }
+  },
 
+  activateCompanions ({ state, commit }) {
+    if (state.class !== 'ZOOLOGIST') {
+      return
+    }
+    if (state.talents.JUNGLEKING.TIGRE) {
+      commit('ACTIVATE_COMPANION', 'IGOR')
+    }
+  },
+
+  companionAttacks ({ state, dispatch }) {
+    if (state.class !== 'ZOOLOGIST') {
+      return
+    }
+    if (state.talents.JUNGLEKING.TIGRE && state.activeCompanions.IGOR) {
+      dispatch('attackAction', {
+        action: 'ATK',
+        type: 'IGOR'
+      })
+    }
   }
+
 }
 
 export default {

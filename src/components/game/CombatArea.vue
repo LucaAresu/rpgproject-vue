@@ -208,19 +208,6 @@ export default {
     })
   }
 }
-/* advanceAtb ({ commit, state, dispatch }) {
-    const player = state.atb.player
-    const monster = state.atb.monster
-    const tick = constants.application.atb.tick
-
-    if (!(monster.current === monster.total)) {
-      commit('ADVANCE_ATB', 'monster')
-      monster.current += tick
-      if (monster.current >= monster.total) {
-        dispatch('monsterAttack')
-      }
-    }
-  }, */
 </script>
 <style scoped>
 .combatarea {

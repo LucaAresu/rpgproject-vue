@@ -20,6 +20,8 @@ const DISTRUTTO_MONSTER_DAMAGE = 12.52
 const GAVETTONE_MAG_MULTIPLIER = 9.52
 
 const TANFO_MAG_MULTIPLIER = 7.67
+
+const GRAFFIO_ATK_MULTIPLIER = 1.25
 /*
 tipi debuff
 STACK una volta raggiunto il limite si subiscono danni
@@ -284,5 +286,27 @@ export default {
     icon: 'glaciazione.jpg',
     type: 'EFFECT',
     limit: player => 1
+  },
+  GRAFFIO: {
+    name: 'Dolore alle palle',
+    icon: 'graffio.jpg',
+    type: 'DOT',
+    tick: player => application.dotMillisecondsTick,
+    limit: player => limit(player, 5),
+    log: {
+      player: {
+        damage: 'Ti butti per terra dal dolore ai gioiellini... ricevi {DAMAGE} danni',
+        dodge: 'Tieni duro anche se il dolore ai gioiellini è devastante'
+      },
+      monster: '{MONSTER} sanguina e subisce {DAMAGE} danni'
+    },
+    effect: {
+      player: {
+        damage: player => percentualHealthDamage(player.maxHp, BALLBUSTED_PERCENTUAL_PLAYER_DAMAGE)
+      },
+      monster: {
+        damage: (monster, player) => Math.round(GRAFFIO_ATK_MULTIPLIER * player.params.ATK)
+      }
+    }
   }
 }

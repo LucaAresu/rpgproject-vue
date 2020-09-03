@@ -989,6 +989,7 @@ const actions = {
       commit('SET_MANA', 0)
     }
     dispatch('autoDefTankTalent')
+    dispatch('activateCompanions')
   },
 
   eventMaxAtb ({ getters, commit, dispatch }) {
@@ -1000,6 +1001,7 @@ const actions = {
     dispatch('autoDefenseInTankBufferingTalent')
     dispatch('berserkTankTalent')
     dispatch('autoDefTankTalent')
+    dispatch('companionAttacks')
   },
 
   eventPlayerDodged ({ dispatch, getters }) {
@@ -1022,6 +1024,12 @@ const actions = {
 
   eventMaxResource ({ dispatch }) {
     dispatch('autoAttackInBufferingTankDamage')
+  },
+  eventMaxAffinityFis () {
+    console.log('fis')
+  },
+  eventMaxAffinityMag () {
+    console.log('mag')
   }
 }
 
@@ -1031,3 +1039,12 @@ export default {
   mutations,
   actions
 }
+/*
+creare nello state activeCompanions: {
+  IGOR: 0
+  CITRULLO: 1
+} ecc
+nell'evento max atb attivare companionAttacks e da li metodo che fa check ecc se si hanno i talenti
+a inizio combat mettere i talenti di default come companion attivi
+fare buff con le icone dei companion
+*/
