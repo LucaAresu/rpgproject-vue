@@ -58,6 +58,8 @@ const COLPOMAGNETICO_ATK_MULTIPLIER = 6.42
 const IGOR_ATK_MULTIPLIER_PLEB = 2.12
 const IGOR_ATK_MULTIPLIER_BUFF = 4.25
 
+const IGORPOWER_ATK_MULTIPLIER_PLEB = 15.24
+
 const ATK_DAMAGE_PETO_MULTIPLIER = 2
 const MAG_DAMAGE_PETO_MULTIPLIER = 2
 const ATK_HEAL_PETO_MULTIPLIER = 2
@@ -70,6 +72,11 @@ const MAG_DMG_GAVETTONEALLAMERDA_MULTIPLIER = 0.5
 const MAG_DMG_HYDRO_MULTIPLIER = 2
 
 const SCARICACINETICA_MAG_MULTIPLIER = 1.96
+
+const CITRULLO_MAG_MULTIPLIER_PLEB = 0.59
+const CITRULLO_MAG_MULTIPLIER_BUFF = 0.89
+const CITRULLO_HEAL_MAG_MULTIPLIER_PLEB = 0.12
+const CITRULLO_HEAL_MAG_MULTIPLIER_BUFF = 0.45
 
 export default {
   ATK: {
@@ -351,8 +358,8 @@ export default {
             const berserkLevel = player.talents.TANK.BERSERK
             switch (berserkLevel) {
               case 1: return 0
-              case 2: return params.ATK * ATK_HEAL_BERSERK_PLEB
-              case 3: return params.ATK * ATK_HEAL_BERSERK_BUFF
+              case 2: return Math.round(params.ATK * ATK_HEAL_BERSERK_PLEB)
+              case 3: return Math.round(params.ATK * ATK_HEAL_BERSERK_BUFF)
               default: return 0
             }
           }
@@ -373,9 +380,14 @@ export default {
       effect: {
         monster: {
           damage: (params, player, monster, commit, dispatch) => {
+            const mimetizzazione = player.talents.JUNGLEKING.MIMETIZZAZIONE
+            let affinityGenerated = 10
+            if (mimetizzazione >= 2) {
+              affinityGenerated += 10
+            }
             dispatch('generateAffinity', {
               type: 'FIS',
-              quantity: 15
+              quantity: affinityGenerated
             })
             return calculateDamage(monster, params, 20, params.ATK * COLPOMAGNETICO_ATK_MULTIPLIER)
           }
@@ -415,6 +427,41 @@ export default {
               quantity
             }
           }
+        }
+      }
+    },
+    IGORPOWER: {
+      key: 'IGORPOWER',
+      name: 'Igor Power',
+      isClass: 'COMPANION',
+      color: '#f6bd60',
+      description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
+      log: 'Igor consuma tutta l\'affinità fisica per  attaccare {MONSTER} e infliggere {DAMAGE} danni. ROAR',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit, dispatch) => {
+            const mimetizzazione = player.talents.JUNGLEKING.MIMETIZZAZIONE
+            console.log(mimetizzazione)
+            if (mimetizzazione >= 3) {
+              dispatch('handleDebuff', {
+                type: 'ADD',
+                name: 'IGORPOWER',
+                quantity: 1,
+                receivedBy: 'MONSTER'
+              })
+            }
+            commit('SET_MANA', 0)
+            return calculateDamage(monster, params, 20, params.ATK * IGORPOWER_ATK_MULTIPLIER_PLEB)
+          },
+          debuff: player => ({
+            type: 'ADD',
+            name: 'MEGAGRAFFIO',
+            quantity: 3
+          })
         }
       }
     }
@@ -760,7 +807,7 @@ export default {
       isClass: 'ZOOLOGIST',
       color: '#90c2e7',
       description: 'Danni moderati, genera affinità magica',
-      log: 'Igor attacca {MONSTER} e riceve {DAMAGE} danni.',
+      log: 'Scarichi l\'energia cinetica ambientale su  {MONSTER} e riceve {DAMAGE} danni.',
       cost: player => ({
         hp: 0,
         mana: 0
@@ -770,9 +817,43 @@ export default {
           damage: (params, player, monster, commit, dispatch) => {
             dispatch('generateAffinity', {
               type: 'MAG',
-              quantity: 15
+              quantity: 10
             })
             return calculateDamage(monster, params, 20, params.MAG * SCARICACINETICA_MAG_MULTIPLIER)
+          }
+        }
+      }
+    },
+    CITRULLO: {
+      key: 'CITRULLO',
+      name: 'Citrullo',
+      isClass: 'COMPANION',
+      color: '#f6bd60',
+      description: 'Un ceffone, moderatamente doloroso, ma capace di mettere in riga (quasi) chiunque. E\' ora di farsi rispettare!',
+      log: 'Citrullo attacca {MONSTER} e riceve {DAMAGE} danni.',
+      cost: player => ({
+        hp: 0,
+        mana: 0
+      }),
+      effect: {
+        monster: {
+          damage: (params, player, monster, commit) => {
+            const citrullo = player.talents.JUNGLEKING.MAGICBIRD
+            if (citrullo >= 3) {
+              return calculateDamage(monster, params, 10, params.MAG * CITRULLO_MAG_MULTIPLIER_BUFF)
+            }
+            return calculateDamage(monster, params, 10, params.MAG * CITRULLO_MAG_MULTIPLIER_PLEB)
+          }
+        },
+        player: {
+          heal: (params, player) => {
+            const citrullo = player.talents.JUNGLEKING.MAGICBIRD
+            switch (citrullo) {
+              case 1: return 0
+              case 2: return Math.round(params.MAG * CITRULLO_HEAL_MAG_MULTIPLIER_PLEB)
+              case 3: return Math.round(params.MAG * CITRULLO_HEAL_MAG_MULTIPLIER_BUFF)
+              default: return 0
+            }
           }
         }
       }

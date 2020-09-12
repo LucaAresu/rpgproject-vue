@@ -22,6 +22,8 @@ const GAVETTONE_MAG_MULTIPLIER = 9.52
 const TANFO_MAG_MULTIPLIER = 7.67
 
 const GRAFFIO_ATK_MULTIPLIER = 1.25
+
+const MEGAGRAFFIO_ATK_MULTIPLIER = 3.52
 /*
 tipi debuff
 STACK una volta raggiunto il limite si subiscono danni
@@ -308,5 +310,30 @@ export default {
         damage: (monster, player) => Math.round(GRAFFIO_ATK_MULTIPLIER * player.params.ATK)
       }
     }
+  },
+  MEGAGRAFFIO: {
+    name: 'Graffio Mortale',
+    icon: 'tanfo.png',
+    type: 'DOT',
+    tick: player => application.dotMillisecondsTick,
+    limit: player => limit(player, 10),
+    log: {
+      player: {
+        damage: 'Ti butti per terra dal dolore ai gioiellini... ricevi {DAMAGE} danni',
+        dodge: 'Tieni duro anche se il dolore ai gioiellini è devastante'
+      },
+      monster: '{MONSTER} sanguina gravemente e subisce {DAMAGE} danni'
+    },
+    effect: {
+      monster: {
+        damage: (monster, player) => Math.round(MEGAGRAFFIO_ATK_MULTIPLIER * player.params.ATK)
+      }
+    }
+  },
+  IGORPOWER: {
+    name: 'Igor Power',
+    icon: 'glaciazione.jpg',
+    type: 'EFFECT',
+    limit: player => 3
   }
 }

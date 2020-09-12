@@ -66,7 +66,10 @@ export default {
     },
     buttonDisabled (attack) {
       const percentualHealthCost = Math.round(this.character.maxHp * attack.cost.hp / 100)
-      const manaCost = attack.cost.mana
+      const manaCost = attack.cost(this.player).mana
+      if (!manaCost && !percentualHealthCost && this.canAttack) {
+        return false
+      }
       return !this.canAttack || (manaCost > this.character.currentMana || percentualHealthCost >= this.character.currentHp)
     }
   }

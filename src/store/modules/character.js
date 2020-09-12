@@ -789,6 +789,9 @@ const actions = {
     if (state.talents.JUNGLEKING.TIGRE) {
       commit('ACTIVATE_COMPANION', 'IGOR')
     }
+    if (state.talents.JUNGLEKING.MAGICBIRD) {
+      commit('ACTIVATE_COMPANION', 'CITRULLO')
+    }
   },
 
   companionAttacks ({ state, dispatch }) {
@@ -799,6 +802,20 @@ const actions = {
       dispatch('attackAction', {
         action: 'ATK',
         type: 'IGOR'
+      })
+    }
+    if (state.talents.JUNGLEKING.MAGICBIRD && state.activeCompanions.CITRULLO) {
+      dispatch('attackAction', {
+        action: 'MAG',
+        type: 'CITRULLO'
+      })
+    }
+  },
+  attackIgorPower ({ state, dispatch }) {
+    if (state.talents.JUNGLEKING.MIMETIZZAZIONE) {
+      dispatch('attackAction', {
+        action: 'ATK',
+        type: 'IGORPOWER'
       })
     }
   }

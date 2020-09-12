@@ -75,8 +75,10 @@
         />
       </div>
       <div class="personal-info">
-        <div class="buff">
-
+        <div class="companions">
+          <div v-for="(active, companion) in character.activeCompanions" :key="companion">
+            <img :src="require('@/assets/companions/' + companion +'.jpg')" v-if="active" />
+          </div>
         </div>
         <div class="name">
           {{ $store.getters.getName }}
@@ -265,6 +267,15 @@ export default {
 }
 .character .icon img {
   width: 120px;
+}
+.companions img {
+  width: 50px;
+  height: 50px;
+  margin: 0.1rem;
+  border: 1px solid #ccc;
+}
+.companions {
+  display: flex;
 }
 
 @media(min-width: 1200px) {

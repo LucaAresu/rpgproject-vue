@@ -1025,11 +1025,10 @@ const actions = {
   eventMaxResource ({ dispatch }) {
     dispatch('autoAttackInBufferingTankDamage')
   },
-  eventMaxAffinityFis () {
-    console.log('fis')
+  eventMaxAffinityFis ({ dispatch }) {
+    dispatch('attackIgorPower')
   },
-  eventMaxAffinityMag () {
-    console.log('mag')
+  eventMaxAffinityMag ({ dispatch }) {
   }
 }
 

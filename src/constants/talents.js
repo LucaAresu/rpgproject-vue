@@ -525,8 +525,8 @@ export default {
         icon: 'mimetizzazione.jpg',
         maxLevel: 3,
         description: [
-          'Quando Igor attacca, e la tua affinità fisica è al massimo la consuma tutta per assaltare il nemico, provoca ingenti danni e un dot ancora più forte',
-          'ABILITà CHE GENERA AFFINITà MAGICA NE GENERA DI PIù',
+          'Quando la tua affinità fisica è al massimo Igor la consuma tutta per assaltare il nemico, provoca ingenti danni e un dot',
+          'Colpo magnetico genera più affinità fisica',
           'Quando Igor usa mimetizzazione applica uno stack di Igor Power'
         ],
         requires: { name: 'TIGRE', level: 3 }
